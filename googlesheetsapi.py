@@ -33,7 +33,7 @@ def main():
             range_name = 'fields!%s%i:Q16' % (col, row)
             print(range_name)
             body = {
-            'values': generate_farm(25, 30, 500, 50)
+            'values': generate_farm(25, 30, 825, 200)
             }
             result = service.spreadsheets().values().update(
                 spreadsheetId=SPREADSHEET_ID, range=range_name,
