@@ -14,7 +14,7 @@ secrete = '9r8Lynt8_0HvJz2NDpftFWYQ'
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '1evhVaog3s5oWQsm2ZdHGqnV1KZ5SbDAwn-eegiZ-UuA'
+SPREADSHEET_ID = '1KuGu6VHCxT47vsxxbdIq84stg-UPxhtoXCjDjSnjfUg'
 
 
 def main():
@@ -29,28 +29,24 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
 
-    min_effort_dist_mean = 7
-    min_effort_std = 3
-    marginal_effectiveness_mean = 2000
-    marginal_effectiveness_std = 500
+    cards = []
+    i = 0
+    with open("The landing cards.txt") as f:
+        for l, llint in enumerate(f):
+            for line in llint.split('\n\n'):
+                if line == '':
+                    continue
+                if '________________' in line:
+                    if i % 2 == 0:
+                        cards.append([''])
+                    else:
+                        cards[-1].append('')
+                    i += 1
+                cards[-1][-1] += line.replace('________________', '')
 
-    line = 1
-    for col in map(chr, range(ord("B"), ord("P"), 2)):
-        for row in range(2, 14, 3):
-            values = generate_farm(min_effort_dist_mean, min_effort_std, marginal_effectiveness_mean, marginal_effectiveness_std)
-            range_name = 'fields!%s%i:Q16' % (col, row)
-            write(range_name, values, service)
-            line += 1
-            range_name = 'fields analysis!B%i:G41' % line
-            write(range_name,
-                  [[list(v) for v in zip(*values)][0] + [list(v) for v in zip(*values)][1]],
-                  service,
-                  );
 
-    write('fields!N11:P14', [['min_effort_dist_mean', '', min_effort_dist_mean],
-                             ['min_effort_std', '', min_effort_std],
-                             ['marginal_effectiveness_mean', '', marginal_effectiveness_mean],
-                             ['marg_std', '', marginal_effectiveness_std]], service)
+
+    write('Templates!A1:B100', cards, service)
 
 def write(range_name, values, service):
     body = {
