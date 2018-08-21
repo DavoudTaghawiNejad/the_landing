@@ -3,18 +3,16 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm, inch
+from reportlab.lib.units import mm
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import Paragraph, Frame, KeepInFrame
 from reportlab.lib.styles import getSampleStyleSheet
 
 
-spacer, width, height = 10 * mm,  A4[0] / 3.5, A4[1] / 3.5
+spacer, width, height = 10 * mm, A4[0] / 3.5, A4[1] / 3.5
 
 client_id = '1042100344500-u207uj45uasn9jfrc9o1ggbkhpfce3nk.apps.googleusercontent.com'
 secrete = '9r8Lynt8_0HvJz2NDpftFWYQ'
-
-
 
 
 # If modifying these scopes, delete the file token.json.
@@ -36,39 +34,42 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
 
-
     c = canvas.Canvas("event_cards.pdf")
 
     i = 0
     p = (0, 0)
     while True:
         print(i)
-        result = read('EventCards!A{0}:E{0}'.format(i + 2), service)
+        result = read('EventCards!A{0}:F{0}'.format(i + 2), service)
         if not result:
+            break
+        elif not result[0][0]:
             break
         p = writepdf(result[0], p, c)
         i += 1
-
-
-
 
     c.save()
 
 
 def read(range_name, service):
     result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID,
-                                                range=range_name).execute()
+                                                 range=range_name).execute()
 
     return result.get('values', [])
+
 
 def prep(text):
     return text.replace('-', '<br/>-')
 
+
 def writepdf(text, p, canvas):
     try:
         frmts = eval(text[4])
-    except IndexError:
-        frmts = [[]]
+    except (IndexError, SyntaxError):
+        if text[4]:
+            raise Exception('Error %s' % text[4])
+        else:
+            frmts = [[]]
     for _ in range(int(text[3])):
         for frmt in frmts:
             styles = getSampleStyleSheet()
@@ -77,7 +78,7 @@ def writepdf(text, p, canvas):
             styleN.spaceAfter = 10
             styleH = styles['Heading1']
 
-            title = Paragraph(text[0], styleH)
+            title = Paragraph(text[0].format(*frmt), styleH)
             story = []
             story.append(Paragraph(prep(text[1]).format(*frmt), styleN))
             if text[2]:
@@ -97,8 +98,6 @@ def writepdf(text, p, canvas):
                     p = (p[0], p[1] + 1)
 
     return p
-
-
 
 
 if __name__ == '__main__':
