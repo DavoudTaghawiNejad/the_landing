@@ -33,10 +33,9 @@ class Cards(Enum):
 class Num:
     tribs = 7
     reshuffle = 16
-    supply = 4
-    stop_remove = 4
-    only_stop = 35 - reshuffle - supply
-    other = 55 - only_stop - supply - reshuffle
+    stop_remove = 9
+    only_stop = 17
+    other = 20
 
 
 class Card:
@@ -61,7 +60,7 @@ def card_stats(cards):
 def one_game(figs=False):
     cards = ([Card(Cards.RESHUFFLE) for _ in range(Num.reshuffle)] +
              [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
-             [Card(Cards.REMOVE_STOP) for _ in range(Num.supply + Num.stop_remove)] +
+             [Card(Cards.REMOVE_STOP) for _ in range(Num.stop_remove)] +
              [Card(Cards.TRIBE) for _ in range(Num.tribs)] +
              [Card(Cards.t1), Card(Cards.t2), Card(Cards.t3), Card(Cards.t3)] +
              [Card(Cards.tr2)] * 4 +
