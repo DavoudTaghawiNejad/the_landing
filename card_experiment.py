@@ -36,7 +36,7 @@ class Num:
     supply = 4
     stop_remove = 4
     only_stop = 35 - reshuffle - supply
-    other = 51 - only_stop - supply - reshuffle
+    other = 55 - only_stop - supply - reshuffle
 
 
 class Card:
