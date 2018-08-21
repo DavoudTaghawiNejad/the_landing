@@ -4,8 +4,8 @@ import plotly.offline as py
 import plotly.graph_objs as go
 from plotly import tools
 import numpy as np
-from collections import Counter
-
+from collections import Counter, defaultdict
+from pprint import pprint
 
 def xbins(nums):
     return dict(
@@ -29,14 +29,17 @@ class Cards(Enum):
     OTHER = auto()
     TRIBE = auto()
 
+    def __repr__(self):
+        return str(self)
+
 
 class Num:
-    tribs = 10
-    reshuffle = 18
-    supply = 5
-    stop_remove = 5
-    only_stop = 43 - reshuffle - supply
-    other = 64 - only_stop - supply - reshuffle
+    tribs = 8
+    reshuffle = 16
+    supply = 4
+    stop_remove = 4
+    only_stop = 35 - reshuffle - supply
+    other = 51 - only_stop - supply - reshuffle
 
 
 class Card:
@@ -50,14 +53,24 @@ class Card:
     def __eq__(self, card_type):
         return self.card_type is card_type
 
+def card_stats(cards):
+    stats = defaultdict(int)
+    for card in cards:
+        stats[card.card_type] += 1
+    stats['total number'] = len(cards)
+    return stats
+
 
 def one_game(figs=False):
     cards = ([Card(Cards.RESHUFFLE) for _ in range(Num.reshuffle)] +
              [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
              [Card(Cards.REMOVE_STOP) for _ in range(Num.supply + Num.stop_remove)] +
              [Card(Cards.TRIBE) for _ in range(Num.tribs)] +
-             [Card(Cards.t1), Card(Cards.t2), Card(Cards.t3), Card(Cards.td2), Card(Cards.td3), Card(Cards.tr2)] +
+             [Card(Cards.tr1), Card(Cards.tr2), Card(Cards.t2), Card(Cards.t3), Card(Cards.td2), Card(Cards.tr2), Card(Cards.td3), Card(Cards.tr2)] +
              [Card(Cards.OTHER) for _ in range(Num.other)])
+
+    stats = card_stats(cards)
+    print('number cards', len(cards))
 
     shuffle(cards)
 
@@ -153,7 +166,7 @@ def one_game(figs=False):
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
-    return ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length
+    return ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats
 
 
 if __name__ == '__main__':
@@ -175,7 +188,7 @@ if __name__ == '__main__':
     discard_pile_length_list = []
     num_tribe_attacks = []
     for i in range(repetitions):
-        ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length = one_game()
+        ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats = one_game()
         tribe_attacks_list += tribe_attacks
         iis.append(ii)
         xis.extend(ii)
@@ -191,15 +204,15 @@ if __name__ == '__main__':
             fig4.append_trace(go.Bar(y=ii,
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
     print(tribe_attacks_list)
-    fig.append_trace(go.Histogram(x=[str(ta) for ta in tribe_attacks_list]), 1, 1)
-    fig.append_trace(go.Histogram(x=xis), 1, 2)
-    fig.append_trace(go.Histogram(x=tribes_list), 1, 3)
-    fig.append_trace(go.Histogram(x=tribes_ht_list), 2, 3)
-    fig.append_trace(go.Histogram(x=repeated_cards), 2, 2)
-    fig.append_trace(go.Histogram(x=repeated_cards_list), 3, 2)
+    fig.append_trace(go.Histogram(x=[str(ta) for ta in tribe_attacks_list], histnorm='probability'), 1, 1)
+    fig.append_trace(go.Histogram(x=xis, histnorm='probability'), 1, 2)
+    fig.append_trace(go.Histogram(x=tribes_list, histnorm='probability'), 1, 3)
+    fig.append_trace(go.Histogram(x=tribes_ht_list, histnorm='probability'), 2, 3)
+    fig.append_trace(go.Histogram(x=repeated_cards, histnorm='probability'), 2, 2)
+    fig.append_trace(go.Histogram(x=repeated_cards_list, histnorm='probability'), 3, 2)
     fig.append_trace(go.Bar(y=discard_pile_length), 3, 1)
     fig.append_trace(go.Bar(y=[np.mean(r) for r in list(zip(*discard_pile_length_list))]), 3, 1)
-    fig.append_trace(go.Histogram(x=num_tribe_attacks), 3, 3)
+    fig.append_trace(go.Histogram(x=num_tribe_attacks, histnorm='probability'), 3, 3)
 
     fig.append_trace(go.Bar(y=[np.mean(ii) - 1 for ii in list(zip(*iis))],
                             error_y=dict(
@@ -220,4 +233,4 @@ if __name__ == '__main__':
     py.plot(fig2, filename='f2')
     py.plot(fig3, filename='indian_attacks')
     py.plot(fig4, filename='cards_drawn')
-    print(repeated_cards)
+    pprint(dict(stats))
