@@ -7,9 +7,9 @@ from reportlab.lib.units import mm, inch
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import Paragraph, Frame
 from reportlab.lib.styles import getSampleStyleSheet
+from pdf2image import convert_from_path
 
 
-spacer, width, height = 20 * mm,  A4[0] / 5, A4[1] / 5  # Updated with respect to thin print
 
 client_id = '1042100344500-u207uj45uasn9jfrc9o1ggbkhpfce3nk.apps.googleusercontent.com'
 secrete = '9r8Lynt8_0HvJz2NDpftFWYQ'
@@ -24,7 +24,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 SPREADSHEET_ID = '1KuGu6VHCxT47vsxxbdIq84stg-UPxhtoXCjDjSnjfUg'
 
 
-def main():
+def main(spacer, width, height, pagesize, jpg):
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
@@ -36,33 +36,32 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
 
-
-    c = canvas.Canvas("effort_cards.pdf")
+    name = "effort_cards"
+    c = canvas.Canvas(name + '.pdg', pagesize=pagesize)
 
     p = (0, 0)
+
+    if jpg:
+        p = writepdf(2, False, 1, p, jpg, c)
+        times = 1
+    else:
+        p = writepdf(2, False, 12 * 5, p, jpg, c)
+        times = 10
+
     for i in range(2, 12, 2):
-        p = writepdf(i, True, 10, p, c)
+        p = writepdf(i, True, times, p, jpg, c)
 
-
-    for _ in range(12):
-        p = writepdf(2, False, 5, p, c)
-
-
-
-
+    if jpg:
+        convert_to_jpg(name)
     c.save()
 
+def convert_to_jpg(name):
+    pages = convert_from_path(name + '.pdf', dpi=72 * 5)
+    for i, page in enumerate(pages):
+        page.save(name + '%00i.jpg' % i, 'JPEG', resize=(1125, 2250))
 
-def read(range_name, service):
-    result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID,
-                                                range=range_name).execute()
 
-    return result.get('values', [])
-
-def prep(text):
-    return text.replace('-', '<br/>-')
-
-def writepdf(number, effort, times,  p, canvas):
+def writepdf(number, effort, times,  p, jpg, canvas):
     for frmt in range(times):
         styles = getSampleStyleSheet()
         styleN = styles['Normal']
@@ -84,7 +83,9 @@ def writepdf(number, effort, times,  p, canvas):
         f = Frame(spacer + p[0] * width, spacer + p[1] * height, width, height, showBoundary=1)
         f.addFromList(story, canvas)
         canvas.restoreState()
-        if p == (3, 3):
+        if jpg:
+            canvas.showPage()
+        elif p == (3, 3):
             canvas.showPage()
             p = (0, 0)
         else:
@@ -99,4 +100,12 @@ def writepdf(number, effort, times,  p, canvas):
 
 
 if __name__ == '__main__':
-    main()
+    jpg = True
+    if jpg:
+        pagesize = (675, 1125)
+        spacer, width, height = 0,  pagesize[0], pagesize[1]
+    else:
+        pagesize = A4
+        spacer, width, height = 20 * mm,  A4[0] / 5, A4[1] / 5  # Updated with respect to thin print
+
+    main(spacer, width, height, pagesize, jpg)
