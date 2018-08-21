@@ -17,9 +17,6 @@ class Cards(Enum):
     t1 = 1
     t2 = 2
     t3 = 3
-    td1 = 4
-    td2 = auto()
-    td3 = auto()
     tr1 = auto()
     tr2 = auto()
     tr3 = auto()
@@ -66,7 +63,8 @@ def one_game(figs=False):
              [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
              [Card(Cards.REMOVE_STOP) for _ in range(Num.supply + Num.stop_remove)] +
              [Card(Cards.TRIBE) for _ in range(Num.tribs)] +
-             [Card(Cards.t1), Card(Cards.tr2), Card(Cards.t2), Card(Cards.t3), Card(Cards.td2), Card(Cards.tr2), Card(Cards.td3), Card(Cards.tr2)] +
+             [Card(Cards.t1), Card(Cards.t2), Card(Cards.t3), Card(Cards.t3)] +
+             [Card(Cards.tr2)] * 4 +
              [Card(Cards.OTHER) for _ in range(Num.other)])
 
     stats = card_stats(cards)
@@ -101,15 +99,6 @@ def one_game(figs=False):
             if drawn == Cards.t3 and tribes > 2:
                 tribe_attacks.append(subround)
                 print('Attack tribe 3')
-            if drawn == Cards.td1 and tribes > 0:
-                tribe_attacks.append(subround)
-                print('Sudden D6 attack tribe 1')
-            if drawn == Cards.td2 and tribes > 1:
-                tribe_attacks.append(subround)
-                print('Sudden D6 attack tribe 2')
-            if drawn == Cards.td3 and tribes > 2:
-                print('Sudden D6 attack tribe 3')
-                tribe_attacks.append(subround)
             if drawn == Cards.tr1 and tribes > 0:
                 print('Sudden D6 attack tribe 3')
                 tribe_attacks.append(subround)
