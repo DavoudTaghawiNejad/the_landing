@@ -56,6 +56,10 @@ def card_stats(cards):
     stats['total number'] = len(cards)
     return stats
 
+def count(cards, card_type):
+    return sum([1 for card in cards if card == card_type])
+
+
 
 def one_game(figs=False):
     cards = ([Card(Cards.RESHUFFLE) for _ in range(Num.reshuffle)] +
@@ -154,7 +158,7 @@ def one_game(figs=False):
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
-    return ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats
+    return ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats, count(removed, Cards.REMOVE_STOP)
 
 
 if __name__ == '__main__':
@@ -175,8 +179,9 @@ if __name__ == '__main__':
     tribes_ht_list = []
     discard_pile_length_list = []
     num_tribe_attacks = []
+    num_remove_stop_list = []
     for i in range(repetitions):
-        ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats = one_game()
+        ii, tribe_attacks, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats, num_remove_stop = one_game()
         tribe_attacks_list += tribe_attacks
         iis.append(ii)
         xis.extend(ii)
@@ -185,13 +190,14 @@ if __name__ == '__main__':
         repeated_cards_list.extend(repeated_cards)
         discard_pile_length_list.append(discard_pile_length)
         num_tribe_attacks.append(len(tribe_attacks))
+        num_remove_stop_list.append(num_remove_stop)
         if i < 25:
             fig3.append_trace(go.Bar(y=[tribe_attacks.count(j)
                                         for j in range(9 * 4)],
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
             fig4.append_trace(go.Bar(y=ii,
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
-    print(tribe_attacks_list)
+
     fig.append_trace(go.Histogram(x=[str(ta) for ta in tribe_attacks_list], histnorm='probability'), 1, 1)
     fig.append_trace(go.Histogram(x=xis, histnorm='probability'), 1, 2)
     fig.append_trace(go.Histogram(x=tribes_list, histnorm='probability'), 1, 3)
@@ -209,7 +215,6 @@ if __name__ == '__main__':
                             visible=True),
                      2, 1)
 
-
     for h in range(1, 6):
         fig2.append_trace(go.Bar(y=[Counter(ii)[h] / repetitions for ii in list(zip(*iis))]), 1, h)
     py.plot(fig)
@@ -217,3 +222,5 @@ if __name__ == '__main__':
     py.plot(fig3, filename='indian_attacks')
     py.plot(fig4, filename='cards_drawn')
     pprint(dict(stats))
+    print('REMOVE_STOP cards drawn on average', np.mean(num_remove_stop_list), np.std(num_remove_stop_list))
+    print('cards drawn on average: %f' % (sum(xis) / repetitions))
