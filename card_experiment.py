@@ -34,7 +34,7 @@ class Cards(Enum):
 
 
 class Num:
-    tribs = 8
+    tribs = 7
     reshuffle = 16
     supply = 4
     stop_remove = 4
@@ -66,7 +66,7 @@ def one_game(figs=False):
              [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
              [Card(Cards.REMOVE_STOP) for _ in range(Num.supply + Num.stop_remove)] +
              [Card(Cards.TRIBE) for _ in range(Num.tribs)] +
-             [Card(Cards.tr1), Card(Cards.tr2), Card(Cards.t2), Card(Cards.t3), Card(Cards.td2), Card(Cards.tr2), Card(Cards.td3), Card(Cards.tr2)] +
+             [Card(Cards.t1), Card(Cards.tr2), Card(Cards.t2), Card(Cards.t3), Card(Cards.td2), Card(Cards.tr2), Card(Cards.td3), Card(Cards.tr2)] +
              [Card(Cards.OTHER) for _ in range(Num.other)])
 
     stats = card_stats(cards)
@@ -214,18 +214,13 @@ if __name__ == '__main__':
     fig.append_trace(go.Bar(y=[np.mean(r) for r in list(zip(*discard_pile_length_list))]), 3, 1)
     fig.append_trace(go.Histogram(x=num_tribe_attacks, histnorm='probability'), 3, 3)
 
-    fig.append_trace(go.Bar(y=[np.mean(ii) - 1 for ii in list(zip(*iis))],
+    fig.append_trace(go.Bar(y=[np.mean(ii) for ii in list(zip(*iis))],
                             error_y=dict(
                             type='data',
                             array=[np.std(ii) for ii in list(zip(*iis))]),
                             visible=True),
                      2, 1)
 
-    print([Counter(ii)[5] for ii in list(zip(*iis))][0])
-    # for i in range(9):
-    #     for h in range(1, 5):
-    #         fig2.append_trace(go.Bar(y=[Counter(ii[i * 4: (i + 1) * 4])[h] / repetitions * 9
-    #                                     for ii in list(zip(*iis))]), i + 1, h)
 
     for h in range(1, 6):
         fig2.append_trace(go.Bar(y=[Counter(ii)[h] / repetitions for ii in list(zip(*iis))]), 1, h)
