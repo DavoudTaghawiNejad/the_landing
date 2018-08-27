@@ -7,6 +7,8 @@ import numpy as np
 from collections import Counter, defaultdict
 from pprint import pprint
 from copy import copy
+import random
+from collections import namedtuple
 
 
 def xbins(nums):
@@ -34,6 +36,15 @@ class Num:
     stop_remove = 7
     only_stop = 10
     other = 20
+
+
+class Pos:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return str((self.x, self.y))
 
 
 class Card:
@@ -70,7 +81,7 @@ def hist(cards):
         hist['total number'] += card.drawn
     return hist
 
-def one_game(figs=False):
+def one_game(figs=False, directions=None):
     cards = ([Card(Cards.RESHUFFLE) for _ in range(Num.reshuffle)] +
              [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
              [Card(Cards.REMOVE_STOP) for _ in range(Num.stop_remove)] +
@@ -80,9 +91,13 @@ def one_game(figs=False):
              [Card(Cards.TRIBE_EVENT, t % 3 + 1) for t in range(3)] * 2 +
              [Card(Cards.OTHER) for _ in range(Num.other)])
 
+    if directions is not None:
+        for card, direction in zip(cards, directions):
+            card.direction = direction
+
+
     stats = card_stats(cards)
     start_cards = copy(cards)
-    print('number cards', len(cards))
 
     shuffle(cards)
 
@@ -96,6 +111,8 @@ def one_game(figs=False):
     tribe_events = []
     discard_pile_length = []
 
+
+    pos = [Pos(10, 0), Pos(0, 0), Pos(5, 0), ]
     while True:
         i = 0
         while True:
@@ -104,9 +121,12 @@ def one_game(figs=False):
             drawn = cards.pop()
             i += 1
             drawn.mark_drawn()
+
+            if drawn == Cards.TRIBE_EVENT:
+                move(pos, drawn)
+
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
-                print('Attack tribe 1')
                 discard.append(drawn)
             elif drawn == Cards.TRIBE_EVENT and drawn.tribe_affected > tribes:
                 discard.append(drawn)
@@ -115,21 +135,17 @@ def one_game(figs=False):
                 shuffle(discard)
                 cards.extend(discard)
                 discard.clear()
-                print("reshuffle")
                 break
             elif drawn == Cards.REMOVE_STOP:
                 removed.append(drawn)
-                print("Remove")
                 break
             elif drawn == Cards.TRIBE and tribes < 3:
                 removed.append(drawn)
                 tribes += 1
-                print('TRIBES', tribes)
                 break
             elif drawn == Cards.TRIBE and tribes >= 3:
                 break
             elif drawn == Cards.ONLY_STOP:
-                print("Stop")
                 discard.append(drawn)
                 break
             elif drawn == Cards.OTHER:
@@ -141,16 +157,15 @@ def one_game(figs=False):
         subround += 1
         if subround == 9 * 2:
             tribes_half_time = tribes
-        print(i, subround, end=' ')
+        # print(i, subround, end=' ')
         ii.append(i)
         lastii.append(i)
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
-                fig.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
+                figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
                 pos += 1
                 lastii = []
         if subround == 9 * 4:
-            print("end of game")
             break
         if len(cards) == 0:
             print("no more cards")
@@ -160,10 +175,89 @@ def one_game(figs=False):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), hist(start_cards), card_stats(start_cards))
+            stats, count(removed, Cards.REMOVE_STOP), start_cards, pos)
 
 
-if __name__ == '__main__':
+def move(pos, card):
+    if card.tribe_affected is None:
+        tribes_affected = [0, 1, 2]
+    else:
+        tribes_affected = [card.tribe_affected - 1]
+
+    for tribe in tribes_affected:
+        if card.direction == 0 and pos[tribe].x > 0:
+            pos[tribe].x -= 1
+        elif card.direction == 1 and pos[tribe].x < 20:
+            pos[tribe].x += 1
+        elif card.direction == 2 and pos[tribe].y > 0:
+            pos[tribe].y -= 1
+        elif card.direction == 3 and pos[tribe].x < 20:
+            pos[tribe].y += 1
+        elif card.direction == 4:
+            pass
+
+
+
+
+def run_and_payoff(directions):
+    positions = one_game(directions=directions)[-1]
+    reward = - sum([abs(5 - pos.x) + abs(5 - pos.y) for pos in positions])
+    return reward
+
+
+def train(n):
+    bests = []
+    lever = 5
+    sets = 72
+    learners = [Egreedy(lever, greed=0.98) for r in range(sets)]
+    for _ in range(n):
+        directions = [learner.propose() for learner in learners]
+        reward = run_and_payoff(directions)
+        if _ % 1000 == 0:
+            best = 0
+            for r in range(20):
+                best += run_and_payoff([learner.best_choice() for learner in learners])
+            best = best / 20
+            print(best)
+            bests.append(best)
+        for learner in learners:
+            learner.learn(reward)
+    py.plot([go.Scatter(y=bests)])
+    print(one_game(directions=[learner.best_choice() for learner in learners])[-1])
+
+
+class Egreedy:
+    def __init__(self, lever, greed):
+        self.Q = {}
+        self.k = {}
+        self.rs = {}
+        self.pay_off = 0
+        for l in range(lever):
+            self.Q[l] = 0.5
+            self.rs[l] = 0
+            self.k[l] = 0
+        self.greed = greed
+        self.lever = lever
+
+    def propose(self):
+        if random.random() < self.greed:
+            self.action = (max(self.Q, key=self.Q.get))
+        else:
+            self.action = random.randrange(0, self.lever)
+        return self.action
+
+    def learn(self, pay_off):
+        self.pay_off += pay_off
+        self.rs[self.action] += pay_off
+        self.k[self.action] += 1
+        self.Q[self.action] = self.rs[self.action] / self.k[self.action]
+
+    def best_choice(self):
+        return max(self.Q, key=self.Q.get)
+
+
+
+def main():
     repetitions = 10000
     fig = tools.make_subplots(rows=3, cols=3,
                               subplot_titles=['tribe_events', 'mean number of cards', 'num tribes',
@@ -186,7 +280,7 @@ if __name__ == '__main__':
     num_remove_stop_list = []
     for i in range(repetitions):
         (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats,
-         num_remove_stop, hist_start_cards, hist_card_stats) = one_game()
+         num_remove_stop, start_cards) = one_game()
         tribe_attacks_list += tribe_events
         iis.append(ii)
         xis.extend(ii)
@@ -202,6 +296,8 @@ if __name__ == '__main__':
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
             fig4.append_trace(go.Bar(y=ii,
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
+
+    hist_start_cards, hist_card_stats = hist(start_cards), card_stats(start_cards)
 
     fig.append_trace(go.Histogram(x=[str(ta) for ta in tribe_attacks_list], histnorm='probability'), 1, 1)
     fig.append_trace(go.Histogram(x=xis, histnorm='probability'), 1, 2)
@@ -233,3 +329,6 @@ if __name__ == '__main__':
     pprint(dict(stats))
     print('REMOVE_STOP cards drawn on average', np.mean(num_remove_stop_list), np.std(num_remove_stop_list))
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
+
+if __name__ == '__main__':
+    train(50000)
