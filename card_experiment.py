@@ -54,6 +54,19 @@ class Card:
 
     def mark_drawn(self):
         self.drawn += 1
+        
+    @property
+    def ldirection(self):
+        if self.direction == 0:
+            return 'l'
+        if self.direction == 1:
+            return 'u'
+        if self.direction == 2:
+            return 'r'
+        if self.direction == 3:
+            return 'o'
+        if self.direction == 4:
+            return '`'
 
     def __eq__(self, card_type):
         return self.card_type is card_type
@@ -110,12 +123,13 @@ def one_game(figs=False, directions=None):
     tribe_events = []
     discard_pile_length = []
     penelty = 0
-    movement = ''
+    movement = []
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
         i = 0
+        movement.append(['|', '|', '|'])
         while True:
             if i >= 5:
                 break
@@ -125,11 +139,17 @@ def one_game(figs=False, directions=None):
                 if drawn.direction == 4:
                     penelty += 0.025
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
-                penelty += 0.05
+                penelty += 0.1
             i += 1
             drawn.mark_drawn()
-
-            movement += move(pos, drawn)
+            m = move(pos, drawn, tribes)
+            if m[0] == '.':
+                penelty += 0.05
+            if m[1] == '.':
+                penelty += 0.05
+            if m[2] == '.':
+                penelty += 0.05
+            movement.append(m)
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -184,73 +204,95 @@ def one_game(figs=False, directions=None):
             stats, count(removed, Cards.REMOVE_STOP), movement, penelty, start_cards, pos)
 
 
-def move(pos, card):
+def move(pos, card, tribes):
+    ret = ['', '', '']
     if card.tribe_affected is None:
-        tribes_affected = [0, 1, 2]
+        tribes_affected = range(tribes)
     else:
         tribes_affected = [card.tribe_affected - 1]
-    ret =''
+        if tribes_affected[0] > tribes:
+            return ret
     for tribe in tribes_affected:
         if card.direction == 0 and pos[tribe].x > 0:
             pos[tribe].x -= 1
-            if tribe == 1:
-                ret = 'l'
+            ret[tribe] = 'l'
         elif card.direction == 2 and pos[tribe].x < 5:
             pos[tribe].x += 1
-            if tribe == 1:   
-                ret = 'r'
+            ret[tribe] = 'r'
         elif card.direction == 1 and pos[tribe].y > 0:
             pos[tribe].y -= 1
-            if tribe == 1:
-                ret = 'u'
+            ret[tribe] = 'u'
         elif card.direction == 3 and pos[tribe].y < 5:
             pos[tribe].y += 1
-            if tribe == 1:
-                ret = 'o'
+            ret[tribe] = 'o'
         elif card.direction == 4:
-            if tribe == 1:
-                ret = '-'
+            ret[tribe] = '`'
         else:
-            ret = '.'
+            ret[tribe] = '.'
     return ret
-    
-
-
 
 
 def run_and_payoff(directions):
     result = one_game(directions=directions)
     positions = result[-1]
     reward = - sum([(3 - pos.x) ** 2 + (3 - pos.y) ** 2 for pos in positions])
-    return reward - result[-3]
+    return reward - result[-3] 
 
 
 def train(n):
     bests = []
     lever = 5
     sets = 72
-    learners = [Egreedy(lever, greed=0.985) for r in range(sets)]
+    repetitions = 100
+    learners = [Egreedy(lever, greed=0.95) for r in range(sets)]
+    found_min = - float('inf')
     for _ in range(n):
         directions = [learner.propose() for learner in learners]
         reward = 0
-        for r in range(20):
+        for r in range(repetitions):
             reward += run_and_payoff(directions)
         if _ % 1000 == 0:
             best_choice = [learner.best_choice() for learner in learners]
             best = 0
-            for r in range(20):
+            for r in range(repetitions):
                 best += run_and_payoff(best_choice)
-            best = best / 20
-            print(_ / 1000, best, best_choice)
-            bests.append(best)
+            best = best / repetitions
+            print(_, best, best_choice)
+            #bests.append(best)
+            for learner in learners:
+                learner.end_epoche()
         for learner in learners:
             learner.learn(reward)
+        if reward > found_min:
+            found_min = reward
+            found_best = [learner.best_choice() for learner in learners]
+        bests.append(reward)
+    print(found_min)
     for _ in range(5):
-        result = one_game(directions=[learner.best_choice() for learner in learners])
-        print(result[-1], result[-4])
+        result = one_game(directions=found_best)
+        
+        print(result[-1], [''.join(z) for z in zip(*result[-4])])
     py.plot([go.Scatter(y=bests)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
- 
+    move_tag_stats = defaultdict(lambda: defaultdict(int))
+    for card in result[-2]:
+        if card.tribe_affected is None:
+            move_tag_stats[card.card_type][card.ldirection] += 1
+        else:
+            move_tag_stats[(card.card_type, card.tribe_affected)][card.ldirection] += 1
+    for card_type, stats in move_tag_stats.items():
+        print(card_type, 
+              sum(stats.values()), 
+              ' '.join('%s: %2.2f' % (k, v / sum(stats.values())) for k, v in stats.items()))
+    print()
+    for card_type, stats in move_tag_stats.items():
+        print(card_type, 
+              sum(stats.values()), 
+              dict(stats))
+    
+        
+           
+    
 
 class Egreedy:
     def __init__(self, lever, greed):
@@ -277,6 +319,14 @@ class Egreedy:
         self.rs[self.action] += pay_off
         self.k[self.action] += 1
         self.Q[self.action] = self.rs[self.action] / self.k[self.action]
+        
+    def end_epoche(self):
+        self.pay_off = 0
+        self.k = {}
+        self.rs = {}
+        for l in range(self.lever):     
+            self.rs[l] = 0
+            self.k[l] = 0
 
     def best_choice(self):
         return max(self.Q, key=self.Q.get)
@@ -357,4 +407,4 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    train(200000)
+    train(3000)
