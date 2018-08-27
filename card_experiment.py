@@ -8,7 +8,6 @@ from collections import Counter, defaultdict
 from pprint import pprint
 from copy import copy
 import random
-from collections import namedtuple
 
 
 def xbins(nums):
@@ -110,20 +109,27 @@ def one_game(figs=False, directions=None):
     tribes = 0
     tribe_events = []
     discard_pile_length = []
+    penelty = 0
+    movement = ''
 
-
-    pos = [Pos(10, 0), Pos(0, 0), Pos(5, 0), ]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
+    last_direction = -1
     while True:
         i = 0
         while True:
             if i >= 5:
                 break
             drawn = cards.pop()
+            if drawn.direction == last_direction:
+                penelty -= 0.01
+                if drawn.direction == 4:
+                    penelty += 0.025
+            if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
+                penelty += 0.05
             i += 1
             drawn.mark_drawn()
 
-            if drawn == Cards.TRIBE_EVENT:
-                move(pos, drawn)
+            movement += move(pos, drawn)
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -175,7 +181,7 @@ def one_game(figs=False, directions=None):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty, start_cards, pos)
 
 
 def move(pos, card):
@@ -183,48 +189,68 @@ def move(pos, card):
         tribes_affected = [0, 1, 2]
     else:
         tribes_affected = [card.tribe_affected - 1]
-
+    ret =''
     for tribe in tribes_affected:
         if card.direction == 0 and pos[tribe].x > 0:
             pos[tribe].x -= 1
-        elif card.direction == 1 and pos[tribe].x < 20:
+            if tribe == 1:
+                ret = 'l'
+        elif card.direction == 2 and pos[tribe].x < 5:
             pos[tribe].x += 1
-        elif card.direction == 2 and pos[tribe].y > 0:
+            if tribe == 1:   
+                ret = 'r'
+        elif card.direction == 1 and pos[tribe].y > 0:
             pos[tribe].y -= 1
-        elif card.direction == 3 and pos[tribe].x < 20:
+            if tribe == 1:
+                ret = 'u'
+        elif card.direction == 3 and pos[tribe].y < 5:
             pos[tribe].y += 1
+            if tribe == 1:
+                ret = 'o'
         elif card.direction == 4:
-            pass
+            if tribe == 1:
+                ret = '-'
+        else:
+            ret = '.'
+    return ret
+    
 
 
 
 
 def run_and_payoff(directions):
-    positions = one_game(directions=directions)[-1]
-    reward = - sum([abs(5 - pos.x) + abs(5 - pos.y) for pos in positions])
-    return reward
+    result = one_game(directions=directions)
+    positions = result[-1]
+    reward = - sum([(3 - pos.x) ** 2 + (3 - pos.y) ** 2 for pos in positions])
+    return reward - result[-3]
 
 
 def train(n):
     bests = []
     lever = 5
     sets = 72
-    learners = [Egreedy(lever, greed=0.98) for r in range(sets)]
+    learners = [Egreedy(lever, greed=0.985) for r in range(sets)]
     for _ in range(n):
         directions = [learner.propose() for learner in learners]
-        reward = run_and_payoff(directions)
+        reward = 0
+        for r in range(20):
+            reward += run_and_payoff(directions)
         if _ % 1000 == 0:
+            best_choice = [learner.best_choice() for learner in learners]
             best = 0
             for r in range(20):
-                best += run_and_payoff([learner.best_choice() for learner in learners])
+                best += run_and_payoff(best_choice)
             best = best / 20
-            print(best)
+            print(_ / 1000, best, best_choice)
             bests.append(best)
         for learner in learners:
             learner.learn(reward)
+    for _ in range(5):
+        result = one_game(directions=[learner.best_choice() for learner in learners])
+        print(result[-1], result[-4])
     py.plot([go.Scatter(y=bests)])
-    print(one_game(directions=[learner.best_choice() for learner in learners])[-1])
-
+    pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
+ 
 
 class Egreedy:
     def __init__(self, lever, greed):
@@ -331,4 +357,4 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    train(50000)
+    train(200000)
