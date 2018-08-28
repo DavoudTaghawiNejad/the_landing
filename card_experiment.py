@@ -9,6 +9,8 @@ from pprint import pprint
 from copy import copy
 import random
 import turtle as ttl
+from random import randrange, choice, sample
+from heapq import nlargest
 
 def xbins(nums):
     return dict(
@@ -270,45 +272,39 @@ def draw(instructions):
 
 def run_and_payoff(directions):
     result = one_game(directions=directions)
-    positions = result[-1]
-    reward = - sum([(3 - pos.x) ** 2 + (3 - pos.y) ** 2 for pos in positions])
     return  - result[-3]
 
+class Directions:
+    def __init__(self, num_cards, actions, genetical_code=None):
+        self.actions = actions
+        if genetical_code is not None:
+            self.genetical_code = genetical_code
+        else:
+            self.genetical_code = [randrange(actions) for _ in range(num_cards)]
+        
+    def __add__(self, other):
+        child_code = [choice([a, b]) 
+                      for a, b in zip(self.genetical_code, other.genetical_code)]
+        if random.random() < 0.1:
+            child_code[randrange(len(child_code))] = randrange(self.actions)
+        return Directions(len(child_code), self.actions, genetical_code=child_code)
 
 def train(n):
-    bests = []
-    lever = 5
-    sets = 72
-    repetitions = 100
-    learners = [Egreedy(lever, greed=0.95) for r in range(sets)]
-    found_min = - float('inf')
-    for _ in range(n):
-        directions = [learner.propose() for learner in learners]
-        reward = 0
-        for r in range(repetitions):
-            reward += run_and_payoff(directions)
-        if _ % 1000 == 0:
-            best_choice = [learner.best_choice() for learner in learners]
-            best = 0
-            for r in range(repetitions):
-                best += run_and_payoff(best_choice)
-            best = best / repetitions
-            print(_, best, best_choice)
-            #bests.append(best)
-            for learner in learners:
-                learner.end_epoche()
-        for learner in learners:
-            learner.learn(reward)
-        if reward > found_min:
-            found_min = reward
-            found_best = [learner.best_choice() for learner in learners]
-        bests.append(reward)
-    print(found_min)
-    for _ in range(5):
-        result = one_game(directions=found_best)
+    population = [Directions(72, 5) for i in range(250)]
+    for _ in range(1000):
+        result = {directions: run_and_payoff(directions=directions.genetical_code)
+                  for directions in population}
+        best = nlargest(10, result, key=result.get)
+        print(sum(result.values()) / len(population))
+        randoms = sample(population, 2)
+        population = [a + b for a in best + randoms for b in best + randoms]
         
+    best = nlargest(1, result, key=result.get)[0].genetical_code
+    for _ in range(5):
+        result = one_game(directions=best)
+                          
         print(result[-1], [''.join(z) for z in zip(*result[-4])])
-    py.plot([go.Scatter(y=bests)])
+    py.plot([go.Scatter(y=best)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
     move_tag_stats = defaultdict(lambda: defaultdict(int))
     for card in result[-2]:
@@ -327,45 +323,6 @@ def train(n):
               dict(stats))
     draw(result[-4])
     
-
-class Egreedy:
-    def __init__(self, lever, greed):
-        self.Q = {}
-        self.k = {}
-        self.rs = {}
-        self.pay_off = 0
-        for l in range(lever):
-            self.Q[l] = 0.5
-            self.rs[l] = 0
-            self.k[l] = 0
-        self.greed = greed
-        self.lever = lever
-
-    def propose(self):
-        if random.random() < self.greed:
-            self.action = (max(self.Q, key=self.Q.get))
-        else:
-            self.action = random.randrange(0, self.lever)
-        return self.action
-
-    def learn(self, pay_off):
-        self.pay_off += pay_off
-        self.rs[self.action] += pay_off
-        self.k[self.action] += 1
-        self.Q[self.action] = self.rs[self.action] / self.k[self.action]
-        
-    def end_epoche(self):
-        self.pay_off = 0
-        self.k = {}
-        self.rs = {}
-        for l in range(self.lever):     
-            self.rs[l] = 0
-            self.k[l] = 0
-
-    def best_choice(self):
-        return max(self.Q, key=self.Q.get)
-
-
 
 def main():
     repetitions = 10000
