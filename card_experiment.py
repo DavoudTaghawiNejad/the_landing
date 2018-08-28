@@ -131,7 +131,7 @@ def one_game(directions=None, figs=False):
     penelty = 0
     movement = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 0)]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 0)]
     last_direction = -1
     while True:
         i = 0
@@ -244,33 +244,36 @@ def move(pos, card, tribes):
     return ret
 
 
-def draw(instructions):
+def draw(best):
     input()
     ttl.setworldcoordinates(0,0,50,50)
     turtles = [ttl.Turtle() for _ in range(3)]
-    for turtle in turtles:
-        turtle.penup()
     turtles[0].color('red')
     turtles[1].color('blue')
     turtles[2].color('green')
-    turtles[0].setposition(50, 50)
-    turtles[1].setposition(50, 0)
-    turtles[2].setposition(50, 0)
-    for turtle in turtles:
-        turtle.pendown()
-
-    for inst in instructions:
-        for tribe, t_inst in enumerate(inst):
-            if t_inst == 'l':
-                turtles[tribe].setx(turtles[tribe].xcor() - 10)
-            elif t_inst == 'r':
-                turtles[tribe].setx(turtles[tribe].xcor() + 10)
-            elif t_inst == 'u':
-                turtles[tribe].sety(turtles[tribe].ycor() - 10)
-            elif t_inst == 'o':
-                turtles[tribe].sety(turtles[tribe].ycor() + 10)
-            else:
-                assert t_inst in ['|', '`', '.', ''], t_inst
+    for _ in range(10):
+        instructions =  one_game(directions=best)[-4]
+        
+        turtles[0].setposition(50, 50)
+        turtles[1].setposition(50, 0)
+        turtles[2].setposition(0, 0)
+        turtles[0].clear()
+        turtles[1].clear()
+        turtles[2].clear()
+    
+        for inst in instructions:
+            for tribe, t_inst in enumerate(inst):
+                if t_inst == 'l':
+                    turtles[tribe].setx(turtles[tribe].xcor() - 10)
+                elif t_inst == 'r':
+                    turtles[tribe].setx(turtles[tribe].xcor() + 10)
+                elif t_inst == 'u':
+                    turtles[tribe].sety(turtles[tribe].ycor() - 10)
+                elif t_inst == 'o':
+                    turtles[tribe].sety(turtles[tribe].ycor() + 10)
+                else:
+                    assert t_inst in ['|', '`', '.', ''], t_inst
+        input()
     ttl.done()
         
 
@@ -335,7 +338,7 @@ def train(n):
         print(card_type, 
               sum(stats.values()), 
               dict(stats))
-    draw(result[-4])
+    draw(best)
     
 
 def main():
