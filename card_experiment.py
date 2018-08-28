@@ -145,7 +145,8 @@ def one_game(directions=None, figs=False):
                 if drawn.direction == 4:
                     penelty += 0.1    
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
-                penelty += 0.1
+                if drawn.direction != last_direction:
+                    penelty += 0.1
             i += 1
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
