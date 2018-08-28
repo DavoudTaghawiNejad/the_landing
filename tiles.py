@@ -58,7 +58,7 @@ def main():
                   service,
                   )
 
-    for line in range(10):
+    for line in range(6):
             pos = write_tile(front_img='wasteland.png', pos=pos, canvas=c)
 
     for line in range(5):
