@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from pprint import pprint
 from copy import copy
 import random
-
+import turtle as ttl
 
 def xbins(nums):
     return dict(
@@ -232,6 +232,37 @@ def move(pos, card, tribes):
     return ret
 
 
+def draw(instructions):
+    input()
+    ttl.setworldcoordinates(0,0,50,50)
+    turtles = [ttl.Turtle() for _ in range(3)]
+    for turtle in turtles:
+        turtle.penup()
+    turtles[0].color('red')
+    turtles[1].color('blue')
+    turtles[2].color('green')
+    turtles[0].setposition(50, 50)
+    turtles[1].setposition(50, 0)
+    turtles[2].setposition(50, 0)
+    for turtle in turtles:
+        turtle.pendown()
+
+    for inst in instructions:
+        for tribe, t_inst in enumerate(inst):
+            if t_inst == 'l':
+                turtles[tribe].setx(turtles[tribe].xcor() - 10)
+            elif t_inst == 'r':
+                turtles[tribe].setx(turtles[tribe].xcor() + 10)
+            elif t_inst == 'u':
+                turtles[tribe].sety(turtles[tribe].ycor() - 10)
+            elif t_inst == 'o':
+                turtles[tribe].sety(turtles[tribe].ycor() + 10)
+            else:
+                assert t_inst in ['|', '`', '.', ''], t_inst
+    ttl.done()
+        
+
+
 def run_and_payoff(directions):
     result = one_game(directions=directions)
     positions = result[-1]
@@ -289,9 +320,7 @@ def train(n):
         print(card_type, 
               sum(stats.values()), 
               dict(stats))
-    
-        
-           
+    draw(result[-4])
     
 
 class Egreedy:
