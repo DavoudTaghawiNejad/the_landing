@@ -6,10 +6,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import Paragraph, Frame, KeepInFrame
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 
-spacer, width, height = 10 * mm, A4[0] / 3.5, A4[1] / 3.5
+spacer, width, height = 10 * mm, A4[0] / 3.2, A4[1] / 3.2
 
 client_id = '1042100344500-u207uj45uasn9jfrc9o1ggbkhpfce3nk.apps.googleusercontent.com'
 secrete = '9r8Lynt8_0HvJz2NDpftFWYQ'
@@ -21,12 +21,24 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1evhVaog3s5oWQsm2ZdHGqnV1KZ5SbDAwn-eegiZ-UuA'
 
+direc_data = {"RESHUFFLE": {'←': 1, '↓': 8, '→': 2, '↑': 2, '`': 3},
+              "ONLY_STOP": {'←': 2, '↓': 3, '→': 2, '↑': 2, '`': 1},
+              "REMOVE_STOP": {'←': 1, '↓': 1, '→': 1, '↑': 4},
+              "OTHER": {'←': 3, '↓': 2, '→': 4, '↑': 5, '`': 6},
+              "TRIBE": {'↓': 1, '→': 2, '↑': 1, '`': 3},
+              ("TRIBE_EVENT", 1): {'←': 1, '↓': 1, '→': 3, '↑': 1},
+              ("TRIBE_EVENT", 2): {'→': 1, '↑': 2, '`': 1},
+              ("TRIBE_EVENT", 3): {'→': 1, '↑': 1}}
+
+directions = {}
+for card_type, cards in direc_data.items():
+    directions[card_type] = []
+    for d, number in cards.items():
+        directions[card_type].extend([d for _ in range(number)])
+
+
 
 def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
-
     store = file.Storage('token.json')
     creds = store.get()  # set to None, for re-authentication
     if not creds or creds.invalid:
@@ -34,7 +46,7 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
 
-    c = canvas.Canvas("event_cards.pdf")
+    c = canvas.Canvas("event.pdf")
 
     i = 0
     p = (0, 0)
@@ -61,6 +73,44 @@ def read(range_name, service):
 def prep(text):
     return text.replace('-', '<br/>-')
 
+def write_directions(data, frmt, p, canvas):
+    styles = getSampleStyleSheet()
+    styleN = styles['Normal']
+    styleB = ParagraphStyle(name='Bold',
+                                  parent=styles['Normal'],
+                                  fontName = 'Times-Bold',
+                                  spaceBefore=0,
+                                  spaceAfter=0,
+                                  leftIndent=10)
+    styleN.spaceBefore = 15
+    styleN.spaceAfter = 10
+    
+    card_type = data[5]
+
+    try:
+        direction = directions[card_type].pop()
+    except KeyError:
+        tribe = frmt[0]
+        direction = directions[(card_type, tribe)].pop()
+   
+    
+    if card_type == 'TRIBE_EVENT':
+        story = [Paragraph('', styleN), 
+                 Paragraph(direction, styleN), 
+                 Paragraph('', styleN)]
+    else:
+        if direction in ['↓', '↑']:
+            story = [Paragraph('', styleB),
+                     Paragraph(direction + direction + direction, styleN)]
+        else:
+            story = [Paragraph(' ' + direction, styleB), 
+                     Paragraph(' ' + direction, styleB), 
+                     Paragraph(' ' + direction, styleB)]
+
+    canvas.saveState()
+    f = Frame(spacer + p[0] * width + width - 40, spacer + p[1] * height, 40, 40, showBoundary=1)
+    f.addFromList([KeepInFrame(40, 40, story)], canvas)
+    canvas.restoreState()
 
 def writepdf(text, p, canvas):
     try:
@@ -88,6 +138,8 @@ def writepdf(text, p, canvas):
             f = Frame(spacer + p[0] * width, spacer + p[1] * height, width, height, showBoundary=1)
             f.addFromList([title, KeepInFrame(height, width, story)], canvas)
             canvas.restoreState()
+            
+            write_directions(text, frmt, p, canvas)
             if p == (2, 2):
                 canvas.showPage()
                 p = (0, 0)
