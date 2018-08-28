@@ -11,6 +11,8 @@ import random
 import turtle as ttl
 from random import randrange, choice, sample
 from heapq import nlargest
+from multiprocessing import Pool
+
 
 def xbins(nums):
     return dict(
@@ -31,12 +33,14 @@ class Cards(Enum):
         return str(self)
 
 
-class Num:
-    tribs = 7
-    reshuffle = 16
-    stop_remove = 7
-    only_stop = 10
-    other = 20
+num = {Cards.TRIBE: 7,
+    Cards.RESHUFFLE: 16,
+    Cards.REMOVE_STOP: 7,
+    Cards.ONLY_STOP: 10,
+    Cards.OTHER: 20,
+    (Cards.TRIBE_EVENT, 1): 6,
+    (Cards.TRIBE_EVENT, 2): 4, 
+    (Cards.TRIBE_EVENT, 3): 2}
 
 
 class Pos:
@@ -49,10 +53,16 @@ class Pos:
 
 
 class Card:
-    def __init__(self, card_type, tribe_affected=None):
-        self.card_type = card_type
+    def __init__(self, card_type, direction):
+        if isinstance(card_type, tuple):
+            self.tribe_affected = card_type[1]
+            self.card_type = card_type[0]
+        else:
+            self.tribe_affected = None
+            self.card_type = card_type
+            
         self.drawn = 0
-        self.tribe_affected = tribe_affected
+        self.direction = direction
 
     def mark_drawn(self):
         self.drawn += 1
@@ -95,19 +105,13 @@ def hist(cards):
         hist['total number'] += card.drawn
     return hist
 
-def one_game(figs=False, directions=None):
-    cards = ([Card(Cards.RESHUFFLE) for _ in range(Num.reshuffle)] +
-             [Card(Cards.ONLY_STOP) for _ in range(Num.only_stop)] +
-             [Card(Cards.REMOVE_STOP) for _ in range(Num.stop_remove)] +
-             [Card(Cards.TRIBE) for _ in range(Num.tribs)] +
-             [Card(Cards.TRIBE_EVENT, t % 3 + 1) for t in range(1)] * 2 +
-             [Card(Cards.TRIBE_EVENT, t % 3 + 1) for t in range(2)] * 2 +
-             [Card(Cards.TRIBE_EVENT, t % 3 + 1) for t in range(3)] * 2 +
-             [Card(Cards.OTHER) for _ in range(Num.other)])
+def one_game(directions=None, figs=False):
+    cards = []
+    for card_type, gc in directions.genetical_code.items():
+        for action, repetitions in enumerate(gc):
+            for _ in range(repetitions):
+                cards.append(Card(card_type, action))
 
-    if directions is not None:
-        for card, direction in zip(cards, directions):
-            card.direction = direction
 
 
     stats = card_stats(cards)
@@ -127,7 +131,7 @@ def one_game(figs=False, directions=None):
     penelty = 0
     movement = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 0)]
     last_direction = -1
     while True:
         i = 0
@@ -156,7 +160,7 @@ def one_game(figs=False, directions=None):
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty +=  sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) /100
+            penelty +=  sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 25
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -271,40 +275,49 @@ def draw(instructions):
 
 
 def run_and_payoff(directions):
-    result = one_game(directions=directions)
-    return  - result[-3]
+    return directions, - sum([one_game(directions=directions)[-3] for _ in range(30)]) / 30
 
 class Directions:
-    def __init__(self, num_cards, actions, genetical_code=None):
+    def __init__(self, actions, genetical_code=None):
         self.actions = actions
         if genetical_code is not None:
             self.genetical_code = genetical_code
         else:
-            self.genetical_code = [randrange(actions) for _ in range(num_cards)]
-        
+            self.genetical_code = {}
+            for card_type in Cards:
+                if card_type != Cards.TRIBE_EVENT:
+                    example = [randrange(actions) for _ in range(num[card_type])]
+                    self.genetical_code[card_type] = [example.count(i) for i in range(actions)]
+            for i in range(1, 3 + 1):
+                example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
+                self.genetical_code[(Cards.TRIBE_EVENT, i)] = [example.count(i) for i in range(actions)]
+                
+                
     def __add__(self, other):
-        child_code = [choice([a, b]) 
-                      for a, b in zip(self.genetical_code, other.genetical_code)]
-        if random.random() < 0.1:
-            child_code[randrange(len(child_code))] = randrange(self.actions)
-        return Directions(len(child_code), self.actions, genetical_code=child_code)
+        child_code = {a[0]: choice([a[1], b[1]]) 
+                      for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
+        if random.random() < 0.05:
+            gen = choice(list(child_code.keys()))
+            shuffle(child_code[gen])
+        return Directions(self.actions, genetical_code=child_code)
 
 def train(n):
-    population = [Directions(72, 5) for i in range(250)]
-    for _ in range(1000):
-        result = {directions: run_and_payoff(directions=directions.genetical_code)
-                  for directions in population}
-        best = nlargest(10, result, key=result.get)
-        print(sum(result.values()) / len(population))
-        randoms = sample(population, 2)
-        population = [a + b for a in best + randoms for b in best + randoms]
-        
-    best = nlargest(1, result, key=result.get)[0].genetical_code
+    bests = []
+    with Pool(8) as pool:
+        population = [Directions(5) for i in range(250)]
+        for iteration in range(30):
+            result = dict(pool.map(run_and_payoff, population))
+            best = nlargest(10, result, key=result.get)
+            print(iteration, max(result.values()))
+            randoms = sample(population, 2)
+            population = [a + b for a in best + randoms for b in best + randoms]
+            bests.append(max(result.values()))
+    best = nlargest(1, result, key=result.get)[0]
     for _ in range(5):
         result = one_game(directions=best)
                           
         print(result[-1], [''.join(z) for z in zip(*result[-4])])
-    py.plot([go.Scatter(y=best)])
+    py.plot([go.Scatter(y=bests)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
     move_tag_stats = defaultdict(lambda: defaultdict(int))
     for card in result[-2]:
