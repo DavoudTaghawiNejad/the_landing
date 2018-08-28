@@ -135,21 +135,26 @@ def one_game(figs=False, directions=None):
                 break
             drawn = cards.pop()
             if drawn.direction == last_direction:
-                penelty -= 0.01
+                penelty -= 0.02
                 if drawn.direction == 4:
-                    penelty += 0.025
+                    penelty += 0.1    
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 penelty += 0.1
             i += 1
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
             if m[0] == '.':
-                penelty += 0.05
+                penelty += 0.025
             if m[1] == '.':
-                penelty += 0.05
+                penelty += 0.025
             if m[2] == '.':
-                penelty += 0.05
+                penelty += 0.025
             movement.append(m)
+            
+            for t in range(3):
+                if pos[t].x == pos[t].y == 3:
+                    penelty -= 0.5
+            penelty +=  sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) /100
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -201,7 +206,7 @@ def one_game(figs=False, directions=None):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty, start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
 
 
 def move(pos, card, tribes):
@@ -267,7 +272,7 @@ def run_and_payoff(directions):
     result = one_game(directions=directions)
     positions = result[-1]
     reward = - sum([(3 - pos.x) ** 2 + (3 - pos.y) ** 2 for pos in positions])
-    return reward - result[-3] 
+    return  - result[-3]
 
 
 def train(n):
