@@ -136,10 +136,15 @@ def one_game(directions=None, figs=False):
     while True:
         i = 0
         movement.append(['|', '|', '|'])
+        this_set = []
         while True:
             if i >= 5:
                 break
             drawn = cards.pop()
+            if drawn.direction != 4:
+                this_set.append(4)
+            if len(this_set) > 2:
+               penelty += 0.1    
             if drawn.direction == last_direction:
                 penelty -= 0.02
                 if drawn.direction == 4:
