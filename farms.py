@@ -23,9 +23,14 @@ def main():
     for i in range(12):
         pos = write_tile(i + 1, pos=pos, canvas=c)
 
+    for i in range(12):
+        pos = write_tile(i + 1, pos=pos, canvas=c)
+
+    for i in range(12):
+        pos = write_tile(i + 1, image='wasteland.png', pos=pos, canvas=c)
     c.save()
 
-def write_tile(i, pos=None, canvas=None):
+def write_tile(i, image=None, pos=None, canvas=None):
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     styleN.spaceBefore = 10
@@ -36,17 +41,19 @@ def write_tile(i, pos=None, canvas=None):
     styleH.alignment = 1
     styleN.alignment = 1
 
-
-
     canvas.saveState()
-    canvas.setFillColor(red)
-    canvas.rect(spacer + pos[0] * 40 * mm, 5 * mm + pos[1] * 80 * mm, 40 * mm, 80 * mm, fill=1, stroke=1)
+    if image is not None:
+        canvas.drawImage(image, spacer + pos[0] * 40 * mm, 5 * mm + pos[1] * 80 * mm, 40 * mm, 40 * mm)
+        canvas.rect(spacer + pos[0] * 40 * mm, 5 * mm + pos[1] * 80 * mm, 40 * mm, 80 * mm, fill=0, stroke=1)
+    else:
+        canvas.setFillColor(red)
+        canvas.rect(spacer + pos[0] * 40 * mm, 5 * mm + pos[1] * 80 * mm, 40 * mm, 80 * mm, fill=1, stroke=1)
 
-    f = Frame(spacer + pos[0] * 40 * mm, pos[1] * 80 * mm - 5 * mm, 40 * mm, 40 * mm, showBoundary=0)
-    f.addFromList([Paragraph('%i' % i, styleH)], canvas)
+        f = Frame(spacer + pos[0] * 40 * mm, pos[1] * 80 * mm - 5 * mm, 40 * mm, 40 * mm, showBoundary=0)
+        f.addFromList([Paragraph('%i' % i, styleH), Paragraph("Barn", styleN)], canvas)
 
-    f = Frame(spacer + pos[0] * 40 * mm, pos[1] * 80 * mm + 35 * mm, 40 * mm, 40 * mm, showBoundary=0)
-    f.addFromList([Paragraph('%i' % i, styleH)], canvas)
+        f = Frame(spacer + pos[0] * 40 * mm, pos[1] * 80 * mm + 35 * mm, 40 * mm, 40 * mm, showBoundary=0)
+        f.addFromList([Paragraph('%i' % i, styleH), Paragraph("Barn", styleN)], canvas)
 
     canvas.restoreState()
     if pos == (3, 2):
