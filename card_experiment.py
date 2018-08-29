@@ -1,5 +1,5 @@
 from random import shuffle
-from enum import Enum, auto
+from enum import Enum
 import plotly.offline as py
 import plotly.graph_objs as go
 from plotly import tools
@@ -35,12 +35,12 @@ class Cards(str, Enum):
 
 
 
-num = {Cards.TRIBE: 14,
-    Cards.RESHUFFLE: 12,
-    Cards.REMOVE_STOP: 12,
-    Cards.ONLY_STOP: 8,
-    Cards.OTHER: 20,
-    (Cards.TRIBE_EVENT, 1): 7,
+num = {Cards.TRIBE: 13,
+    Cards.RESHUFFLE: 13,
+    Cards.REMOVE_STOP: 7,
+    Cards.ONLY_STOP: 14,
+    Cards.OTHER: 13,
+    (Cards.TRIBE_EVENT, 1): 8,
     (Cards.TRIBE_EVENT, 2): 6,
     (Cards.TRIBE_EVENT, 3): 4}
 
@@ -172,7 +172,7 @@ def one_game(directions=None, figs=False):
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty +=  sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 25
+            penelty += sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -190,11 +190,11 @@ def one_game(directions=None, figs=False):
                 break
             elif drawn == Cards.TRIBE:
                 removed.append(drawn)
+                if tribes < 3:
+                    tribes += 1
                 shuffle(discard)
                 cards.extend(discard)
                 discard.clear()
-                if tribes < 3:
-                    tribes += 1
                 break
             elif drawn == Cards.ONLY_STOP:
                 discard.append(drawn)
@@ -291,7 +291,7 @@ def draw(best):
         if input():
             ttl.bye()
             return
-    ttl.done()
+    ttl.bye()
 
 
 
@@ -398,9 +398,8 @@ def main():
         num_tribe_events.append(len(tribe_events))
         num_remove_stop_list.append(num_remove_stop)
         if i < 25:
-            fig3.append_trace(go.Bar(y=[tribe_events.count(j)
-                                        for j in range(9 * 4)],
-                                     x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
+            fig3.append_trace(go.Bar(y=discard_pile_length), i % 5 + 1, i // 5 + 1)
+
             fig4.append_trace(go.Bar(y=ii,
                                      x=list(range(9 * 4))), i % 5 + 1, i // 5 + 1)
 
@@ -412,8 +411,6 @@ def main():
     fig.append_trace(go.Histogram(x=tribes_ht_list, histnorm='probability'), 2, 3)
     fig.append_trace(go.Histogram(x=repeated_cards, histnorm='probability'), 2, 2)
     fig.append_trace(go.Histogram(x=repeated_cards_list, histnorm='probability'), 3, 2)
-    fig.append_trace(go.Bar(y=discard_pile_length), 3, 1)
-    fig.append_trace(go.Bar(y=[np.mean(r) for r in list(zip(*discard_pile_length_list))]), 3, 1)
     fig.append_trace(go.Histogram(x=num_tribe_events, histnorm='probability'), 3, 3)
 
     fig.append_trace(go.Bar(y=[np.mean(ii) for ii in list(zip(*iis))],
@@ -432,10 +429,10 @@ def main():
     for h in range(1, 6):
         fig2.append_trace(go.Bar(y=[Counter(ii)[h] / repetitions for ii in list(zip(*iis))]), 1, h)
     py.plot(fig)
-    py.plot(summary_fig2, filename='summary_fig2')
-    py.plot(fig2, filename='f2')
-    py.plot(fig3, filename='indian_events')
-    py.plot(fig4, filename='cards_drawn')
+    py.plot(summary_fig2, filename='summary_fig2.html')
+    py.plot(fig2, filename='f2.html')
+    py.plot(fig3, filename='discard_deck.html')
+    py.plot(fig4, filename='cards_drawn.html')
     pprint(dict(stats))
     print('REMOVE_STOP cards drawn on average', np.mean(num_remove_stop_list), np.std(num_remove_stop_list))
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
