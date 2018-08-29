@@ -72,13 +72,13 @@ class Card:
     @property
     def ldirection(self):
         if self.direction == 0:
-            return 'l'
+            return '←'
         if self.direction == 1:
-            return 'u'
+            return '↓'
         if self.direction == 2:
-            return 'r'
+            return '→'
         if self.direction == 3:
-            return 'o'
+            return '↑'
         if self.direction == 4:
             return '`'
 
@@ -241,16 +241,16 @@ def move(pos, card, tribes):
     for tribe in tribes_affected:
         if card.direction == 0 and pos[tribe].x > 0:
             pos[tribe].x -= 1
-            ret[tribe] = 'l'
+            ret[tribe] = '←'
         elif card.direction == 2 and pos[tribe].x < 5:
             pos[tribe].x += 1
-            ret[tribe] = 'r'
+            ret[tribe] = '→'
         elif card.direction == 1 and pos[tribe].y > 0:
             pos[tribe].y -= 1
-            ret[tribe] = 'u'
+            ret[tribe] = '↓'
         elif card.direction == 3 and pos[tribe].y < 5:
             pos[tribe].y += 1
-            ret[tribe] = 'o'
+            ret[tribe] = '↑'
         elif card.direction == 4:
             ret[tribe] = '`'
         else:
@@ -278,13 +278,13 @@ def draw(best):
 
         for inst in instructions:
             for tribe, t_inst in enumerate(inst):
-                if t_inst == 'l':
+                if t_inst == '←':
                     turtles[tribe].setx(turtles[tribe].xcor() - 10)
-                elif t_inst == 'r':
+                elif t_inst == '→':
                     turtles[tribe].setx(turtles[tribe].xcor() + 10)
-                elif t_inst == 'u':
+                elif t_inst == '↓':
                     turtles[tribe].sety(turtles[tribe].ycor() - 10)
-                elif t_inst == 'o':
+                elif t_inst == '↑':
                     turtles[tribe].sety(turtles[tribe].ycor() + 10)
                 else:
                     assert t_inst in ['|', '`', '.', ''], t_inst
@@ -296,7 +296,7 @@ def draw(best):
 
 
 def run_and_payoff(directions):
-    return directions, - sum([one_game(directions=directions)[-3] for _ in range(30)]) / 30
+    return directions, - sum([one_game(directions=directions)[-3] for _ in range(100)]) / 100
 
 class Directions:
     def __init__(self, actions, genetical_code=None):
@@ -326,7 +326,7 @@ def train():
     bests = []
     with Pool(8) as pool:
         population = [Directions(5) for i in range(250)]
-        for iteration in range(30):
+        for iteration in range(300):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(10, result, key=result.get)
             print(iteration, max(result.values()))
@@ -338,7 +338,7 @@ def train():
         result = one_game(directions=best)
 
         print(result[-1], [''.join(z) for z in zip(*result[-4])])
-    #py.plot([go.Scatter(y=bests)])
+    py.plot([go.Scatter(y=bests)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
     move_tag_stats = defaultdict(lambda: defaultdict(int))
     for card in result[-2]:
