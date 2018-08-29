@@ -12,6 +12,7 @@ import turtle as ttl
 from random import randrange, choice, sample
 from heapq import nlargest
 from multiprocessing import Pool
+import pickle
 
 
 def xbins(nums):
@@ -21,26 +22,27 @@ def xbins(nums):
         size=1)
 
 
-class Cards(Enum):
-    TRIBE_EVENT = auto()
-    RESHUFFLE = auto()
-    ONLY_STOP = auto()
-    REMOVE_STOP = auto()
-    OTHER = auto()
-    TRIBE = auto()
+class Cards(str, Enum):
+    TRIBE_EVENT = 'TRIBE_EVENT'
+    RESHUFFLE = 'RESHUFFLE'
+    ONLY_STOP = 'ONLY_STOP'
+    REMOVE_STOP = 'REMOVE_STOP'
+    OTHER = 'OTHER'
+    TRIBE = 'TRIBE'
 
     def __repr__(self):
-        return str(self)
+        return self.name
 
 
-num = {Cards.TRIBE: 7,
-    Cards.RESHUFFLE: 16,
-    Cards.REMOVE_STOP: 7,
-    Cards.ONLY_STOP: 10,
+
+num = {Cards.TRIBE: 14,
+    Cards.RESHUFFLE: 12,
+    Cards.REMOVE_STOP: 12,
+    Cards.ONLY_STOP: 8,
     Cards.OTHER: 20,
-    (Cards.TRIBE_EVENT, 1): 6,
-    (Cards.TRIBE_EVENT, 2): 4, 
-    (Cards.TRIBE_EVENT, 3): 2}
+    (Cards.TRIBE_EVENT, 1): 7,
+    (Cards.TRIBE_EVENT, 2): 6,
+    (Cards.TRIBE_EVENT, 3): 4}
 
 
 class Pos:
@@ -60,13 +62,13 @@ class Card:
         else:
             self.tribe_affected = None
             self.card_type = card_type
-            
+
         self.drawn = 0
         self.direction = direction
 
     def mark_drawn(self):
         self.drawn += 1
-        
+
     @property
     def ldirection(self):
         if self.direction == 0:
@@ -130,8 +132,9 @@ def one_game(directions=None, figs=False):
     discard_pile_length = []
     penelty = 0
     movement = []
+    tribes_out = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 0)]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 5)]
     last_direction = -1
     while True:
         i = 0
@@ -144,11 +147,11 @@ def one_game(directions=None, figs=False):
             if drawn.direction != 4:
                 this_set.append(4)
             if len(this_set) > 2:
-               penelty += 0.1    
+                penelty += 0.1
             if drawn.direction == last_direction:
                 penelty -= 0.02
                 if drawn.direction == 4:
-                    penelty += 0.1    
+                    penelty += 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
                     penelty += 0.1
@@ -156,17 +159,20 @@ def one_game(directions=None, figs=False):
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
             if m[0] == '.':
-                penelty += 0.025
+                if pos[0].x > 0:
+                    penelty += 0.025
             if m[1] == '.':
-                penelty += 0.025
+                if pos[1].y < 5:
+                    penelty += 0.025
             if m[2] == '.':
-                penelty += 0.025
+                if pos[2].y > 0:
+                    penelty += 0.025
             movement.append(m)
-            
+
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty +=  sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 25
+            penelty +=  sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 25
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -182,11 +188,13 @@ def one_game(directions=None, figs=False):
             elif drawn == Cards.REMOVE_STOP:
                 removed.append(drawn)
                 break
-            elif drawn == Cards.TRIBE and tribes < 3:
+            elif drawn == Cards.TRIBE:
                 removed.append(drawn)
-                tribes += 1
-                break
-            elif drawn == Cards.TRIBE and tribes >= 3:
+                shuffle(discard)
+                cards.extend(discard)
+                discard.clear()
+                if tribes < 3:
+                    tribes += 1
                 break
             elif drawn == Cards.ONLY_STOP:
                 discard.append(drawn)
@@ -197,6 +205,7 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
+        tribes_out.append(tribes)
         subround += 1
         if subround == 9 * 2:
             tribes_half_time = tribes
@@ -217,7 +226,7 @@ def one_game(directions=None, figs=False):
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
-    return (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
+    return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
             stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
 
 
@@ -250,7 +259,8 @@ def move(pos, card, tribes):
 
 
 def draw(best):
-    input()
+    if input():
+        return
     ttl.setworldcoordinates(0,0,50,50)
     turtles = [ttl.Turtle() for _ in range(3)]
     turtles[0].color('red')
@@ -258,14 +268,14 @@ def draw(best):
     turtles[2].color('green')
     for _ in range(10):
         instructions =  one_game(directions=best)[-4]
-        
+
         turtles[0].setposition(50, 50)
         turtles[1].setposition(50, 0)
-        turtles[2].setposition(0, 0)
+        turtles[2].setposition(50, 50)
         turtles[0].clear()
         turtles[1].clear()
         turtles[2].clear()
-    
+
         for inst in instructions:
             for tribe, t_inst in enumerate(inst):
                 if t_inst == 'l':
@@ -278,9 +288,11 @@ def draw(best):
                     turtles[tribe].sety(turtles[tribe].ycor() + 10)
                 else:
                     assert t_inst in ['|', '`', '.', ''], t_inst
-        input()
+        if input():
+            ttl.bye()
+            return
     ttl.done()
-        
+
 
 
 def run_and_payoff(directions):
@@ -300,17 +312,17 @@ class Directions:
             for i in range(1, 3 + 1):
                 example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
                 self.genetical_code[(Cards.TRIBE_EVENT, i)] = [example.count(i) for i in range(actions)]
-                
-                
+
+
     def __add__(self, other):
-        child_code = {a[0]: choice([a[1], b[1]]) 
+        child_code = {a[0]: choice([a[1], b[1]])
                       for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
         if random.random() < 0.05:
             gen = choice(list(child_code.keys()))
             shuffle(child_code[gen])
         return Directions(self.actions, genetical_code=child_code)
 
-def train(n):
+def train():
     bests = []
     with Pool(8) as pool:
         population = [Directions(5) for i in range(250)]
@@ -324,9 +336,9 @@ def train(n):
     best = nlargest(1, result, key=result.get)[0]
     for _ in range(5):
         result = one_game(directions=best)
-                          
+
         print(result[-1], [''.join(z) for z in zip(*result[-4])])
-    py.plot([go.Scatter(y=bests)])
+    #py.plot([go.Scatter(y=bests)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
     move_tag_stats = defaultdict(lambda: defaultdict(int))
     for card in result[-2]:
@@ -335,18 +347,22 @@ def train(n):
         else:
             move_tag_stats[(card.card_type, card.tribe_affected)][card.ldirection] += 1
     for card_type, stats in move_tag_stats.items():
-        print(card_type, 
-              sum(stats.values()), 
+        print(card_type,
+              sum(stats.values()),
               ' '.join('%s: %2.2f' % (k, v / sum(stats.values())) for k, v in stats.items()))
     print()
     for card_type, stats in move_tag_stats.items():
-        print(card_type, 
-              sum(stats.values()), 
+        print(card_type,
+              sum(stats.values()),
               dict(stats))
+    with open('card_directions.pp', 'wb') as fp:
+        pickle.dump(best.genetical_code, fp)
     draw(best)
-    
+
 
 def main():
+    with open('card_directions.pp', 'rb') as fp:
+        directions = Directions(5, genetical_code=pickle.load(fp))
     repetitions = 10000
     fig = tools.make_subplots(rows=3, cols=3,
                               subplot_titles=['tribe_events', 'mean number of cards', 'num tribes',
@@ -357,7 +373,6 @@ def main():
     fig2 = tools.make_subplots(rows=1, cols=5)
     fig3 = tools.make_subplots(rows=5, cols=5)
     fig4 = tools.make_subplots(rows=5, cols=5)
-
     tribe_attacks_list = []
     iis = []
     xis = []
@@ -367,12 +382,15 @@ def main():
     discard_pile_length_list = []
     num_tribe_events = []
     num_remove_stop_list = []
+    tribes_out_list = []
     for i in range(repetitions):
-        (ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats,
-         num_remove_stop, start_cards) = one_game()
+
+        (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length, stats,
+         num_remove_stop, movement, penelty, start_cards, pos) = one_game(directions)
         tribe_attacks_list += tribe_events
         iis.append(ii)
         xis.extend(ii)
+        tribes_out_list.append(tribes_out)
         tribes_list.append(tribes)
         tribes_ht_list.append(tribes_half_time)
         repeated_cards_list.extend(repeated_cards)
@@ -405,9 +423,12 @@ def main():
                             visible=True),
                      2, 1)
 
+
     summary_fig2.append_trace(go.Bar(x=list(hist_start_cards.values()), y=list(hist_start_cards.keys()), orientation = 'h'), 1, 1)
     summary_fig2.append_trace(go.Bar(x=list(hist_card_stats.values()), y=list(hist_card_stats.keys()), orientation = 'h'), 1, 2)
-
+    summary_fig2.append_trace(go.Bar(y=[np.median(to) for to in zip(*tribes_out_list)]), 1, 3)
+    summary_fig2.append_trace(go.Bar(y=[to.count(0) / repetitions for to in zip(*tribes_out_list)]), 2, 1)
+    summary_fig2.append_trace(go.Bar(y=[to.count(3) / repetitions for to in zip(*tribes_out_list)]), 2, 2)
     for h in range(1, 6):
         fig2.append_trace(go.Bar(y=[Counter(ii)[h] / repetitions for ii in list(zip(*iis))]), 1, h)
     py.plot(fig)
@@ -420,4 +441,5 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    train(3000)
+    train()
+    main()
