@@ -10,7 +10,8 @@ from reportlab.platypus import Paragraph, Frame, Table
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.colors import white, grey
 
-spacer, width, height = 20 * mm,  A4[0] / 10, A4[1] / 10
+spacer = 5 * mm
+side_length = 6.4 * 10 * mm
 
 
 client_id = '1042100344500-u207uj45uasn9jfrc9o1ggbkhpfce3nk.apps.googleusercontent.com'
@@ -25,6 +26,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1evhVaog3s5oWQsm2ZdHGqnV1KZ5SbDAwn-eegiZ-UuA'
 
+to_google = False
 
 def main():
     """Shows basic usage of the Sheets API.
@@ -47,25 +49,36 @@ def main():
 
     pos = (0, 0)
 
-    for line in range(15):
+    for line in range(24):  # Updated and not yet printed
             values = generate_farm(min_effort_dist_mean, min_effort_std,
                                    marginal_effectiveness_mean, marginal_effectiveness_std)
             conversion_cost = xround(gauss(6, 3), 2)
-            pos = write_tile(values, conversion_cost, 'woods.jpg', 'field.png', pos, c)
-            range_name = 'fields analysis!B%i:G41' % (line + 1)
-            write(range_name,
-                  [[list(v) for v in zip(*values)][0] + [list(v) for v in zip(*values)][1]],
-                  service,
-                  )
+            write_farm_tiles(values, conversion_cost, 'woods.png', 'field.png', pos, c)
+            if to_google:
+                range_name = 'fields analysis!B%i:G41' % (line + 1)
+                write(range_name,
+                      [[list(v) for v in zip(*values)][0] + [list(v) for v in zip(*values)][1]],
+                      service,
+                      )
+            pos = next_position(pos, w=3, h=2, canvas=c)
 
-    for line in range(10):
-            pos = write_tile(front_img='wasteland.png', pos=pos, canvas=c)
+    for line in range(4):
+            write_tile(front_img='wasteland.png', pos=pos, canvas=c)
+            pos = next_position(pos, w=3, h=4, canvas=c)
 
-    for line in range(5):
-            pos = write_tile(front_img='water.jpg', pos=pos, canvas=c)
 
-    for line in range(5):
-            pos = write_tile(front_img='mountains.png', pos=pos, canvas=c)
+    for line in range(4):
+            write_tile(front_img='lake.png', pos=pos, canvas=c)
+            pos = next_position(pos, w=3, h=4, canvas=c)
+
+
+    for line in range(4):
+            write_tile(front_img='mountains.png', pos=pos, canvas=c)
+            pos = next_position(pos, w=3, h=4, canvas=c)
+
+    for line in range(12):
+            write_tile(front_img='exhausted.jpg', pos=pos, canvas=c)
+            pos = next_position(pos, w=3, h=4, canvas=c)
 
     c.save()
     write('fields analysis!N11:P14', [['min_effort_dist_mean', '', min_effort_dist_mean],
@@ -74,7 +87,7 @@ def main():
                              ['marg_std', '', marginal_effectiveness_std]], service)
 
 
-def write_tile(values=None, conversion_cost=None, front_img=None, back_img=None, pos=None, canvas=None):
+def write_farm_tiles(values=None, conversion_cost=None, front_img=None, back_img=None, pos=None, canvas=None):
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     styleN.spaceBefore = 10
@@ -86,33 +99,32 @@ def write_tile(values=None, conversion_cost=None, front_img=None, back_img=None,
     styleN.alignment = 1
 
 
+    table = Table(values, style=[('TEXTCOLOR', (0,0), (2,2), white),
+                                 ('SIZE', (0,0), (2,2), 14)])
 
-    canvas.saveState()
-    canvas.rect(spacer + pos[0] * 47 * mm, 5 * mm + pos[1] * 94 * mm, 47 * mm, 94 * mm, fill=0, stroke=1)
-    canvas.drawImage(front_img, spacer + pos[0] * 47 * mm, 5 * mm + pos[1] * 94 * mm + 47 * mm, 47 * mm, 47 * mm)
-    if back_img is not None:
-        canvas.drawImage(back_img, spacer + pos[0] * 47 * mm, 5 * mm + pos[1] * 94 * mm, 47 * mm, 47 * mm)
-    f = Frame(spacer + pos[0] * 47 * mm, pos[1] * 94 * mm - 5 * mm, 47 * mm, 47 * mm, showBoundary=0)
-    if values is not None:
-        table = Table(values, style=[('TEXTCOLOR', (0,0), (1,2), white),
-                                     ('SIZE', (0,0), (1,2), 14)])
-        f.addFromList([table], canvas)
+    canvas.drawImage(front_img, spacer + pos[0] * side_length, spacer + pos[1] * 2 * side_length + side_length, side_length, side_length)
+    canvas.drawImage(back_img, spacer + pos[0] * side_length, spacer + pos[1] * 2 * side_length, side_length, side_length)
+    f = Frame(spacer + pos[0] * side_length, pos[1] * 2 * side_length - 2.5 * spacer, side_length, side_length, showBoundary=0)
+    f.addFromList([table], canvas)
 
-    f = Frame(spacer + pos[0] * 47 * mm, pos[1] * 94 * mm + 35 * mm, 47 * mm, 47 * mm, showBoundary=0)
-    if conversion_cost is not None:
-        f.addFromList([Paragraph('%i' % conversion_cost, styleH)], canvas)
+    f = Frame(spacer + pos[0] * side_length, pos[1] * 2 * side_length + 45 * mm, side_length, side_length, showBoundary=0)
+    f.addFromList([Paragraph('%i' % conversion_cost, styleH)], canvas)
 
-    canvas.restoreState()
-    if pos == (2, 2):
+
+def write_tile(front_img=None, pos=None, canvas=None):
+    canvas.drawImage(front_img, spacer + pos[0] * side_length, spacer + pos[1] * side_length, side_length, side_length)
+
+
+def next_position(pos, w, h, canvas):
+    if pos == (w - 1, h - 1):
         canvas.showPage()
         pos = (0, 0)
     else:
-        if pos[1] == 2:
+        if pos[1] == h - 1:
             pos = (pos[0] + 1, 0)
         else:
             pos = (pos[0], pos[1] + 1)
     return pos
-
 
 
 
