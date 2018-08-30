@@ -1,7 +1,9 @@
+import pickle
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
-
+from card_experiment import Directions
+from card_experiment import Cards
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.lib.pagesizes import A4
@@ -21,21 +23,18 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1evhVaog3s5oWQsm2ZdHGqnV1KZ5SbDAwn-eegiZ-UuA'
 
-direc_data = {"RESHUFFLE": {'←': 1, '↓': 8, '→': 2, '↑': 2, '`': 3},
-              "ONLY_STOP": {'←': 2, '↓': 3, '→': 2, '↑': 2, '`': 1},
-              "REMOVE_STOP": {'←': 1, '↓': 1, '→': 1, '↑': 4},
-              "OTHER": {'←': 3, '↓': 2, '→': 4, '↑': 5, '`': 6},
-              "TRIBE": {'↓': 1, '→': 2, '↑': 1, '`': 3},
-              ("TRIBE_EVENT", 1): {'←': 1, '↓': 1, '→': 3, '↑': 1},
-              ("TRIBE_EVENT", 2): {'→': 1, '↑': 2, '`': 1},
-              ("TRIBE_EVENT", 3): {'→': 1, '↑': 1}}
+
+arrows = ['←', '↓', '→', '↑', '']
+with open('card_directions.pp', 'rb') as fp:
+        direc_data = Directions(5, genetical_code=pickle.load(fp)).genetical_code
 
 directions = {}
 for card_type, cards in direc_data.items():
     directions[card_type] = []
-    for d, number in cards.items():
-        directions[card_type].extend([d for _ in range(number)])
-
+    for d, number in enumerate(cards):
+        directions[card_type].extend([arrows[d] for _ in range(number)])
+print(directions)
+input()
 
 
 def main():
@@ -84,7 +83,7 @@ def write_directions(data, frmt, p, canvas):
                                   leftIndent=10)
     styleN.spaceBefore = 15
     styleN.spaceAfter = 10
-    
+
     card_type = data[5]
 
     try:
@@ -92,19 +91,20 @@ def write_directions(data, frmt, p, canvas):
     except KeyError:
         tribe = frmt[0]
         direction = directions[(card_type, tribe)].pop()
-   
-    
+
+    if direction == '':
+        return
+
     if card_type == 'TRIBE_EVENT':
-        story = [Paragraph('', styleN), 
-                 Paragraph(direction, styleN), 
-                 Paragraph('', styleN)]
+        story = [Paragraph('', styleB),
+                 Paragraph(direction, styleB)]
     else:
         if direction in ['↓', '↑']:
             story = [Paragraph('', styleB),
                      Paragraph(direction + direction + direction, styleN)]
-        else:
-            story = [Paragraph(' ' + direction, styleB), 
-                     Paragraph(' ' + direction, styleB), 
+        elif direction in ['←', '→']:
+            story = [Paragraph(' ' + direction, styleB),
+                     Paragraph(' ' + direction, styleB),
                      Paragraph(' ' + direction, styleB)]
 
     canvas.saveState()
@@ -138,7 +138,7 @@ def writepdf(text, p, canvas):
             f = Frame(spacer + p[0] * width, spacer + p[1] * height, width, height, showBoundary=1)
             f.addFromList([title, KeepInFrame(height, width, story)], canvas)
             canvas.restoreState()
-            
+
             write_directions(text, frmt, p, canvas)
             if p == (2, 2):
                 canvas.showPage()
