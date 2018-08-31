@@ -26,7 +26,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1evhVaog3s5oWQsm2ZdHGqnV1KZ5SbDAwn-eegiZ-UuA'
 
-to_google = False
+to_google = True
 
 def main():
     """Shows basic usage of the Sheets API.
@@ -53,11 +53,11 @@ def main():
             values = generate_farm(min_effort_dist_mean, min_effort_std,
                                    marginal_effectiveness_mean, marginal_effectiveness_std)
             conversion_cost = xround(gauss(6, 3), 2)
-            write_farm_tiles(values, conversion_cost, 'woods.png', 'field.png', pos, c)
+            write_farm_tiles(values, conversion_cost, 'woods.png', 'field.png', pos, line, c)
             if to_google:
                 range_name = 'fields analysis!B%i:G41' % (line + 1)
                 write(range_name,
-                      [[list(v) for v in zip(*values)][0] + [list(v) for v in zip(*values)][1]],
+                      [[list(v) for v in zip(*values)][0] + [list(v) for v in zip(*values)][2]],
                       service,
                       )
             pos = next_position(pos, w=3, h=2, canvas=c)
@@ -87,7 +87,7 @@ def main():
                              ['marg_std', '', marginal_effectiveness_std]], service)
 
 
-def write_farm_tiles(values=None, conversion_cost=None, front_img=None, back_img=None, pos=None, canvas=None):
+def write_farm_tiles(values=None, conversion_cost=None, front_img=None, back_img=None, pos=None, num=None, canvas=None):
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     styleN.spaceBefore = 10
@@ -98,7 +98,7 @@ def write_farm_tiles(values=None, conversion_cost=None, front_img=None, back_img
     styleH.alignment = 1
     styleN.alignment = 1
 
-
+    canvas.setStrokeColor(white)
     table = Table(values, style=[('TEXTCOLOR', (0,0), (2,2), white),
                                  ('SIZE', (0,0), (2,2), 14)])
 
@@ -106,6 +106,9 @@ def write_farm_tiles(values=None, conversion_cost=None, front_img=None, back_img
     canvas.drawImage(back_img, spacer + pos[0] * side_length, spacer + pos[1] * 2 * side_length, side_length, side_length)
     f = Frame(spacer + pos[0] * side_length, pos[1] * 2 * side_length - 2.5 * spacer, side_length, side_length, showBoundary=0)
     f.addFromList([table], canvas)
+
+    f = Frame(spacer + pos[0] * side_length, pos[1] * 2 * side_length + spacer, 12 * mm, 12 * mm, showBoundary=1)
+    f.addFromList([Paragraph('%s' % chr(num + 65), styleH)], canvas)
 
     f = Frame(spacer + pos[0] * side_length, pos[1] * 2 * side_length + 45 * mm, side_length, side_length, showBoundary=0)
     f.addFromList([Paragraph('%i' % conversion_cost, styleH)], canvas)
