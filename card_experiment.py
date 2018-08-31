@@ -360,8 +360,8 @@ class Directions:
 
 def train():
     bests = []
-    with Pool(8) as pool:
-        population = [Directions(9) for i in range(250)]
+    with Pool() as pool:
+        population = [Directions(9) for i in range(1500)]
         for iteration in range(300):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(30, result, key=result.get)
