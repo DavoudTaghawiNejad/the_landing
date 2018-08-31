@@ -80,6 +80,14 @@ class Card:
         if self.direction == 3:
             return '↑'
         if self.direction == 4:
+            return '←←'
+        if self.direction == 5:
+            return '↓↓'
+        if self.direction == 6:
+            return '→→'
+        if self.direction == 7:
+            return '↑↑'
+        if self.direction == 8:
             return '`'
 
     def __eq__(self, card_type):
@@ -251,10 +259,28 @@ def move(pos, card, tribes):
         elif card.direction == 3 and pos[tribe].y < 5:
             pos[tribe].y += 1
             ret[tribe] = '↑'
-        elif card.direction == 4:
+
+        if card.direction == 4 and pos[tribe].x > 0:
+            pos[tribe].x -= 2
+            ret[tribe] = '←←'
+        elif card.direction == 6 and pos[tribe].x < 5:
+            pos[tribe].x += 2
+            ret[tribe] = '→→'
+        elif card.direction == 5 and pos[tribe].y > 0:
+            pos[tribe].y -= 2
+            ret[tribe] = '↓↓'
+        elif card.direction == 7 and pos[tribe].y < 5:
+            pos[tribe].y += 2
+            ret[tribe] = '↑↑'
+
+        elif card.direction == 8:
             ret[tribe] = '`'
         else:
             ret[tribe] = '.'
+        pos[tribe].y = pos[tribe].y if pos[tribe].y <= 5 else 5
+        pos[tribe].x = pos[tribe].x if pos[tribe].y <= 5 else 5
+        pos[tribe].y = pos[tribe].y if pos[tribe].y >= 0 else 0
+        pos[tribe].x = pos[tribe].x if pos[tribe].y >= 0 else 0
     return ret
 
 
@@ -286,6 +312,14 @@ def draw(best):
                     turtles[tribe].sety(turtles[tribe].ycor() - 10)
                 elif t_inst == '↑':
                     turtles[tribe].sety(turtles[tribe].ycor() + 10)
+                elif t_inst == '←←':
+                    turtles[tribe].setx(turtles[tribe].xcor() - 10)
+                elif t_inst == '→→':
+                    turtles[tribe].setx(turtles[tribe].xcor() + 10)
+                elif t_inst == '↓↓':
+                    turtles[tribe].sety(turtles[tribe].ycor() - 10)
+                elif t_inst == '↑↑':
+                    turtles[tribe].sety(turtles[tribe].ycor() + 10)
                 else:
                     assert t_inst in ['|', '`', '.', ''], t_inst
         if input():
@@ -296,7 +330,7 @@ def draw(best):
 
 
 def run_and_payoff(directions):
-    return directions, - sum([one_game(directions=directions)[-3] for _ in range(50)]) / 50
+    return directions, - sum([one_game(directions=directions)[-3] for _ in range(100)]) / 100
 
 class Directions:
     def __init__(self, actions, genetical_code=None):
@@ -317,21 +351,23 @@ class Directions:
     def __add__(self, other):
         child_code = {a[0]: choice([a[1], b[1]])
                       for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
-        if random.random() < 0.01:
+        if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
-            shuffle(child_code[gen])
+            a = randrange(self.actions)
+            b = randrange(self.actions)
+            child_code[gen][a], child_code[gen][b] = child_code[gen][b], child_code[gen][a]
         return Directions(self.actions, genetical_code=child_code)
 
 def train():
     bests = []
     with Pool(8) as pool:
-        population = [Directions(5) for i in range(250)]
+        population = [Directions(9) for i in range(250)]
         for iteration in range(300):
             result = dict(pool.map(run_and_payoff, population))
-            best = nlargest(20, result, key=result.get)
+            best = nlargest(30, result, key=result.get)
             print(iteration, max(result.values()))
             randoms = sample(population, 5)
-            population = [a + b for a in best + randoms for b in best + randoms]
+            population = [a + b for a in best + randoms for b in best + randoms] + best
             bests.append(max(result.values()))
     best = nlargest(1, result, key=result.get)[0]
     for _ in range(5):
