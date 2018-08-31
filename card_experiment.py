@@ -36,13 +36,13 @@ class Cards(str, Enum):
 
 
 num = {Cards.TRIBE: 13,
-    Cards.RESHUFFLE: 13,
-    Cards.REMOVE_STOP: 7,
-    Cards.ONLY_STOP: 14,
-    Cards.OTHER: 13,
-    (Cards.TRIBE_EVENT, 1): 8,
-    (Cards.TRIBE_EVENT, 2): 6,
-    (Cards.TRIBE_EVENT, 3): 4}
+       Cards.RESHUFFLE: 13,
+       Cards.REMOVE_STOP: 7,
+       Cards.ONLY_STOP: 14,
+       Cards.OTHER: 13,
+       (Cards.TRIBE_EVENT, 1): 8,
+       (Cards.TRIBE_EVENT, 2): 6,
+       (Cards.TRIBE_EVENT, 3): 4}
 
 
 class Pos:
@@ -296,7 +296,7 @@ def draw(best):
 
 
 def run_and_payoff(directions):
-    return directions, - sum([one_game(directions=directions)[-3] for _ in range(100)]) / 100
+    return directions, - sum([one_game(directions=directions)[-3] for _ in range(50)]) / 50
 
 class Directions:
     def __init__(self, actions, genetical_code=None):
@@ -317,7 +317,7 @@ class Directions:
     def __add__(self, other):
         child_code = {a[0]: choice([a[1], b[1]])
                       for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
-        if random.random() < 0.05:
+        if random.random() < 0.01:
             gen = choice(list(child_code.keys()))
             shuffle(child_code[gen])
         return Directions(self.actions, genetical_code=child_code)
@@ -328,9 +328,9 @@ def train():
         population = [Directions(5) for i in range(250)]
         for iteration in range(300):
             result = dict(pool.map(run_and_payoff, population))
-            best = nlargest(10, result, key=result.get)
+            best = nlargest(20, result, key=result.get)
             print(iteration, max(result.values()))
-            randoms = sample(population, 2)
+            randoms = sample(population, 5)
             population = [a + b for a in best + randoms for b in best + randoms]
             bests.append(max(result.values()))
     best = nlargest(1, result, key=result.get)[0]
