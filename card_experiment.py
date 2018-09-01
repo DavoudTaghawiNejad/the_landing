@@ -184,7 +184,7 @@ def one_game(directions=None, figs=False):
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty += sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
+            penelty += sum([(1 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -430,6 +430,12 @@ def print_gen_code(genetical_code):
     for card_type, code in genetical_code.items():
         print(card_type, end='')
         print([(number_to_dicection(gc), times) for gc, times in enumerate(code)])
+
+def load_and_draw():
+    with open('card_directions.pp', 'rb') as fp:
+        directions = Directions(5, genetical_code=pickle.load(fp))
+    draw(directions)
+
 
 def main():
     with open('card_directions.pp', 'rb') as fp:

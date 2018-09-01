@@ -33,8 +33,6 @@ for card_type, cards in direc_data.items():
     directions[card_type] = []
     for d, number in enumerate(cards):
         directions[card_type].extend([arrows[d] for _ in range(number)])
-print(directions)
-input()
 
 
 def main():
