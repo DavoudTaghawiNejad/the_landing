@@ -416,6 +416,12 @@ def train():
     draw(best)
 
 
+def load_and_draw():
+    with open('card_directions.pp', 'rb') as fp:
+        directions = Directions(5, genetical_code=pickle.load(fp))
+    draw(directions)
+
+
 def main():
     with open('card_directions.pp', 'rb') as fp:
         directions = Directions(5, genetical_code=pickle.load(fp))
@@ -494,5 +500,6 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
+    # load_and_draw()
     train()
     main()
