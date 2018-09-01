@@ -260,7 +260,7 @@ def move(pos, card, tribes):
             pos[tribe].y += 1
             ret[tribe] = '↑'
 
-        if card.direction == 4 and pos[tribe].x > 0:
+        elif card.direction == 4 and pos[tribe].x > 0:
             pos[tribe].x -= 2
             ret[tribe] = '←←'
         elif card.direction == 6 and pos[tribe].x < 5:
