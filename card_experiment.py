@@ -168,13 +168,13 @@ def one_game(directions=None, figs=False):
             m = move(pos, drawn, tribes)
             if m[0] == '.':
                 if pos[0].x > 0:
-                    penelty += 0.025
+                    penelty += 0.075
             if m[1] == '.':
                 if pos[1].y < 5:
-                    penelty += 0.025
+                    penelty += 0.075
             if m[2] == '.':
                 if pos[2].y > 0:
-                    penelty += 0.025
+                    penelty += 0.075
             movement.append(m)
 
             for t in range(3):
