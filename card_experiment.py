@@ -80,13 +80,13 @@ class Card:
         if self.direction == 3:
             return '↑'
         if self.direction == 4:
-            return '←←'
+            return '_←←_'
         if self.direction == 5:
-            return '↓↓'
+            return '_↓↓_'
         if self.direction == 6:
-            return '→→'
+            return '_→→_'
         if self.direction == 7:
-            return '↑↑'
+            return '_↑↑_'
         if self.direction == 8:
             return '`'
 
@@ -262,16 +262,16 @@ def move(pos, card, tribes):
 
         elif card.direction == 4 and pos[tribe].x > 0:
             pos[tribe].x -= 2
-            ret[tribe] = '←←'
+            ret[tribe] = '_←←_'
         elif card.direction == 6 and pos[tribe].x < 5:
             pos[tribe].x += 2
-            ret[tribe] = '→→'
+            ret[tribe] = '_→→_'
         elif card.direction == 5 and pos[tribe].y > 0:
             pos[tribe].y -= 2
-            ret[tribe] = '↓↓'
+            ret[tribe] = '_↓↓_'
         elif card.direction == 7 and pos[tribe].y < 5:
             pos[tribe].y += 2
-            ret[tribe] = '↑↑'
+            ret[tribe] = '_↑↑_'
 
         elif card.direction == 8:
             ret[tribe] = '`'
@@ -312,13 +312,13 @@ def draw(best):
                     turtles[tribe].sety(turtles[tribe].ycor() - 10)
                 elif t_inst == '↑':
                     turtles[tribe].sety(turtles[tribe].ycor() + 10)
-                elif t_inst == '←←':
+                elif t_inst == '_←←_':
                     turtles[tribe].setx(turtles[tribe].xcor() - 10)
-                elif t_inst == '→→':
+                elif t_inst == '_→→_':
                     turtles[tribe].setx(turtles[tribe].xcor() + 10)
-                elif t_inst == '↓↓':
+                elif t_inst == '_↓↓_':
                     turtles[tribe].sety(turtles[tribe].ycor() - 10)
-                elif t_inst == '↑↑':
+                elif t_inst == '_↑↑_':
                     turtles[tribe].sety(turtles[tribe].ycor() + 10)
                 else:
                     assert t_inst in ['|', '`', '.', ''], t_inst
