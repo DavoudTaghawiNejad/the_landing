@@ -356,17 +356,13 @@ class Directions:
         child_code = {a[0]: a[1] if x_under <= i <= x_over else b[1]
                       for i, (a, b) in enumerate(zip(self.genetical_code.items(), other.genetical_code.items()))}
 
-        if random.random() < 0.0005:
-            gen = choice(list(child_code.keys()))
-            shuffle(child_code[gen])
-        if random.random() < 0.001:
-            gen = choice(list(child_code.keys()))
-            child_code[gen][0:4], child_code[gen][4:8] = child_code[gen][4:8], child_code[gen][0:4]
-        if random.random() < 0.001:
+        if random.random() < 0.005:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             b = randrange(self.actions)
-            child_code[gen][a], child_code[gen][b] = child_code[gen][b], child_code[gen][a]
+            if child_code[gen][a] > 0:
+                child_code[gen][a] -= 1
+                child_code[gen][b] += 1
         return Directions(self.actions, genetical_code=child_code)
 
 def train():
@@ -377,7 +373,7 @@ def train():
         for iteration in range(100):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(30, result, key=result.get)
-            print(iteration, max(result.values()))
+            print(iteration, '%2.2f' % max(result.values()))
             randoms = sample(population, 5)
             population = [a + b for a in best + randoms for b in best + randoms]
             bests.append(max(result.values()))
