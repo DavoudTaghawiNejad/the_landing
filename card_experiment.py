@@ -260,7 +260,7 @@ def move(pos, card, tribes):
             pos[tribe].y += 1
             ret[tribe] = '↑'
 
-        if card.direction == 4 and pos[tribe].x > 0:
+        elif card.direction == 4 and pos[tribe].x > 0:
             pos[tribe].x -= 2
             ret[tribe] = '_←←_'
         elif card.direction == 6 and pos[tribe].x < 5:
@@ -341,7 +341,7 @@ class Directions:
             self.genetical_code = {}
             for card_type in Cards:
                 if card_type != Cards.TRIBE_EVENT:
-                    example = [randrange(5) for _ in range(num[card_type])]
+                    example = [randrange(actions) for _ in range(num[card_type])]
                     self.genetical_code[card_type] = [example.count(i) for i in range(actions)]
             for i in range(1, 3 + 1):
                 example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
