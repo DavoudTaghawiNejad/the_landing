@@ -341,7 +341,7 @@ class Directions:
             self.genetical_code = {}
             for card_type in Cards:
                 if card_type != Cards.TRIBE_EVENT:
-                    example = [randrange(actions) for _ in range(num[card_type])]
+                    example = [randrange(5) for _ in range(num[card_type])]
                     self.genetical_code[card_type] = [example.count(i) for i in range(actions)]
             for i in range(1, 3 + 1):
                 example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
@@ -356,7 +356,13 @@ class Directions:
         child_code = {a[0]: a[1] if x_under <= i <= x_over else b[1]
                       for i, (a, b) in enumerate(zip(self.genetical_code.items(), other.genetical_code.items()))}
 
-        if random.random() < 0.01:
+        if random.random() < 0.0005:
+            gen = choice(list(child_code.keys()))
+            shuffle(child_code[gen])
+        if random.random() < 0.001:
+            gen = choice(list(child_code.keys()))
+            child_code[gen][0:4], child_code[gen][4:8] = child_code[gen][4:8], child_code[gen][0:4]
+        if random.random() < 0.001:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             b = randrange(self.actions)
@@ -368,7 +374,7 @@ def train():
     with Pool() as pool:
         population = [Directions(9) for i in range(1500)]
 
-        for iteration in range(300):
+        for iteration in range(100):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(30, result, key=result.get)
             print(iteration, max(result.values()))
