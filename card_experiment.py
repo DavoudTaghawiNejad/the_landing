@@ -260,16 +260,16 @@ def move(pos, card, tribes):
             pos[tribe].y += 1
             ret[tribe] = '↑'
 
-        elif card.direction == 4 and pos[tribe].x > 0:
+        elif card.direction == 4 and pos[tribe].x > 1:
             pos[tribe].x -= 2
             ret[tribe] = '_←←_'
-        elif card.direction == 6 and pos[tribe].x < 5:
+        elif card.direction == 6 and pos[tribe].x < 4:
             pos[tribe].x += 2
             ret[tribe] = '_→→_'
-        elif card.direction == 5 and pos[tribe].y > 0:
+        elif card.direction == 5 and pos[tribe].y > 1:
             pos[tribe].y -= 2
             ret[tribe] = '_↓↓_'
-        elif card.direction == 7 and pos[tribe].y < 5:
+        elif card.direction == 7 and pos[tribe].y < 4:
             pos[tribe].y += 2
             ret[tribe] = '_↑↑_'
 
@@ -277,10 +277,6 @@ def move(pos, card, tribes):
             ret[tribe] = '`'
         else:
             ret[tribe] = '.'
-        pos[tribe].y = pos[tribe].y if pos[tribe].y <= 5 else 5
-        pos[tribe].x = pos[tribe].x if pos[tribe].y <= 5 else 5
-        pos[tribe].y = pos[tribe].y if pos[tribe].y >= 0 else 0
-        pos[tribe].x = pos[tribe].x if pos[tribe].y >= 0 else 0
     return ret
 
 
