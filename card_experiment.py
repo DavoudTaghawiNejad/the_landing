@@ -159,7 +159,7 @@ def one_game(directions=None, figs=False):
             if drawn.direction == last_direction:
                 penelty -= 0.02
                 if drawn.direction == 4:
-                    penelty += 0.1
+                    penelty += 0.25
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
                     penelty += 0.1
@@ -356,7 +356,7 @@ class Directions:
         child_code = {a[0]: a[1] if x_under <= i <= x_over else b[1]
                       for i, (a, b) in enumerate(zip(self.genetical_code.items(), other.genetical_code.items()))}
 
-        if random.random() < 0.005:
+        if random.random() < 0.05:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             b = randrange(self.actions)
