@@ -71,30 +71,34 @@ class Card:
 
     @property
     def ldirection(self):
-        if self.direction == 0:
-            return '←'
-        if self.direction == 1:
-            return '↓'
-        if self.direction == 2:
-            return '→'
-        if self.direction == 3:
-            return '↑'
-        if self.direction == 4:
-            return '_←←_'
-        if self.direction == 5:
-            return '_↓↓_'
-        if self.direction == 6:
-            return '_→→_'
-        if self.direction == 7:
-            return '_↑↑_'
-        if self.direction == 8:
-            return '`'
+        return number_to_dicection(self.direction)
+
 
     def __eq__(self, card_type):
         return self.card_type is card_type
 
     def __str__ (self):
         return "<%s, %s>" % (str(self.card_type), str(self.tribe_affected))
+
+def number_to_dicection(number):
+        if number == 0:
+            return '←'
+        if number == 1:
+            return '↓'
+        if number == 2:
+            return '→'
+        if number == 3:
+            return '↑'
+        if number == 4:
+            return '_←←_'
+        if number == 5:
+            return '_↓↓_'
+        if number == 6:
+            return '_→→_'
+        if number == 7:
+            return '_↑↑_'
+        if number == 8:
+            return '`'
 
 
 def card_stats(cards):
@@ -415,10 +419,21 @@ def train():
         pickle.dump(best.genetical_code, fp)
     draw(best)
 
+def load_and_draw():
+    with open('card_directions.pp', 'rb') as fp:
+        genetical_code = pickle.load(fp)
+        directions = Directions(9, genetical_code=genetical_code)
+    print_gen_code(genetical_code)
+    draw(directions)
+
+def print_gen_code(genetical_code):
+    for card_type, code in genetical_code.items():
+        print(card_type, end='')
+        print([(number_to_dicection(gc), times) for gc, times in enumerate(code)])
 
 def main():
     with open('card_directions.pp', 'rb') as fp:
-        directions = Directions(5, genetical_code=pickle.load(fp))
+        directions = Directions(9, genetical_code=pickle.load(fp))
     repetitions = 10000
     fig = tools.make_subplots(rows=3, cols=3,
                               subplot_titles=['tribe_events', 'mean number of cards', 'num tribes',
@@ -494,5 +509,6 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
+    load_and_draw()
     train()
     main()
