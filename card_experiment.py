@@ -180,7 +180,7 @@ def one_game(directions=None, figs=False):
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty += sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
+            penelty += sum([(1 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
