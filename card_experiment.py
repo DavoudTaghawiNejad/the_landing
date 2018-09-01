@@ -350,10 +350,13 @@ class Directions:
 
     def __add__(self, other):
         x_over = randrange(len(self.genetical_code))
-        child_code = {a[0]: a[1] if i <= x_over else b[1]
+        x_under = randrange(len(self.genetical_code))
+        if x_under > x_over:
+            x_under, x_over = x_over, x_under
+        child_code = {a[0]: a[1] if x_under <= i <= x_over else b[1]
                       for i, (a, b) in enumerate(zip(self.genetical_code.items(), other.genetical_code.items()))}
 
-        if random.random() < 0.02:
+        if random.random() < 0.01:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             b = randrange(self.actions)
@@ -370,7 +373,7 @@ def train():
             best = nlargest(30, result, key=result.get)
             print(iteration, max(result.values()))
             randoms = sample(population, 5)
-            population = [a + b for a in best + randoms for b in best + randoms] + best
+            population = [a + b for a in best + randoms for b in best + randoms]
             bests.append(max(result.values()))
     best = nlargest(1, result, key=result.get)[0]
     for _ in range(5):
