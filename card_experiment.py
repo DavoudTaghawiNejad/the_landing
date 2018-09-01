@@ -349,8 +349,10 @@ class Directions:
 
 
     def __add__(self, other):
-        child_code = {a[0]: choice([a[1], b[1]])
-                      for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
+        x_over = randrange(len(self.genetical_code))
+        child_code = {a[0]: a[1] if i <= x_over else b[1]
+                      for i, (a, b) in enumerate(zip(self.genetical_code.items(), other.genetical_code.items()))}
+
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
@@ -362,6 +364,7 @@ def train():
     bests = []
     with Pool() as pool:
         population = [Directions(9) for i in range(1500)]
+
         for iteration in range(300):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(30, result, key=result.get)
