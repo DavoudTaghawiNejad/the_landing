@@ -35,14 +35,14 @@ class Cards(str, Enum):
 
 
 
-num = {Cards.TRIBE: 13,
-       Cards.RESHUFFLE: 13,
-       Cards.REMOVE_STOP: 7,
-       Cards.ONLY_STOP: 14,
-       Cards.OTHER: 13,
-       (Cards.TRIBE_EVENT, 1): 8,
-       (Cards.TRIBE_EVENT, 2): 6,
-       (Cards.TRIBE_EVENT, 3): 4}
+num = {Cards.TRIBE: 15,
+       Cards.RESHUFFLE: 5,
+       Cards.REMOVE_STOP: 5,
+       Cards.ONLY_STOP: 5,
+       Cards.OTHER: 10,
+       (Cards.TRIBE_EVENT, 1): 7,
+       (Cards.TRIBE_EVENT, 2): 5,
+       (Cards.TRIBE_EVENT, 3): 3}
 
 
 class Pos:
@@ -219,7 +219,7 @@ def one_game(directions=None, figs=False):
                 break
         tribes_out.append(tribes)
         subround += 1
-        if subround == 9 * 2:
+        if subround == 3 * 2:
             tribes_half_time = tribes
         # print(i, subround, end=' ')
         ii.append(i)
@@ -229,7 +229,7 @@ def one_game(directions=None, figs=False):
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
                 pos += 1
                 lastii = []
-        if subround == 9 * 4:
+        if subround == 3 * 4:
             break
         if len(cards) == 0:
             print("no more cards")
@@ -525,6 +525,6 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    load_and_draw()
-    train()
+    #load_and_draw()
+    #   train()
     main()
