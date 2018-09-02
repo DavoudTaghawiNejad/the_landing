@@ -184,7 +184,7 @@ def one_game(directions=None, figs=False):
             for t in range(3):
                 if pos[t].x == pos[t].y == 3:
                     penelty -= 0.5
-            penelty += sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
+            penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -525,6 +525,6 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    load_and_draw()
-    #train()
+    #load_and_draw()
+    train(150)
     #main()
