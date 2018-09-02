@@ -321,7 +321,7 @@ def draw(best):
 
         turtles[0].setposition(50, 50)
         turtles[1].setposition(50, 0)
-        turtles[2].setposition(50, 50)
+        turtles[2].setposition(0, 50)
         turtles[0].clear()
         turtles[1].clear()
         turtles[2].clear()
@@ -390,11 +390,11 @@ class Directions:
             child_code[gen][a], child_code[gen][b] = child_code[gen][b], child_code[gen][a]
         return Directions(self.actions, genetical_code=child_code)
 
-def train():
+def train(iterations=1):
     bests = []
     with Pool() as pool:
         population = [Directions(9) for i in range(1500)]
-        for iteration in range(300):
+        for iteration in range(iterations):
             result = dict(pool.map(run_and_payoff, population))
             best = nlargest(30, result, key=result.get)
             print(iteration, max(result.values()))
@@ -525,6 +525,6 @@ def main():
     print('cards drawn on average: %f' % (sum(xis) / repetitions))
 
 if __name__ == '__main__':
-    #load_and_draw()
-    train()
-    main()
+    load_and_draw()
+    #train()
+    #main()
