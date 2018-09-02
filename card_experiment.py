@@ -38,7 +38,7 @@ class Cards(str, Enum):
 num = {Cards.TRIBE: 15,
        Cards.RESHUFFLE: 5,
        Cards.REMOVE_STOP: 5,
-       Cards.ONLY_STOP: 5,
+       Cards.ONLY_STOP: 4,
        Cards.OTHER: 10,
        (Cards.TRIBE_EVENT, 1): 7,
        (Cards.TRIBE_EVENT, 2): 5,
@@ -146,7 +146,7 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 5)]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
         i = 0
@@ -526,5 +526,5 @@ def main():
 
 if __name__ == '__main__':
     #load_and_draw()
-    #   train()
+    train()
     main()
