@@ -155,7 +155,7 @@ def one_game(directions=None, figs=False):
         if i <= 1:
             penelty += 0.1
         if i >= 4:
-            penelty += 0.175
+            penelty += 0.5
         i = 0
         this_set = []
         while True:
