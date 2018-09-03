@@ -393,7 +393,7 @@ class Directions:
             child_code[gen][a] -= 1
             if (sum(child_code['OTHER']) < num['OTHER'] or
                     (sum(child_code['ONLY_STOP']) + sum(child_code['REMOVE_STOP']) <
-                        num['ONLY_STOP'] + num['REMOVE_STOP']):
+                        num['ONLY_STOP'] + num['REMOVE_STOP'])):
                 b = randrange(self.actions)
                 child_code[gen][b] += 1
 
