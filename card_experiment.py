@@ -223,7 +223,7 @@ def one_game(directions=None, figs=False):
             if len(cards) == 0:
                 break
         if 1 < i < 5:
-            adjusted_cards_drawn += 1
+            adjusted_cards_drawn += i
         tribes_out.append(tribes)
         subround += 1
         if subround == 3 * 2:
