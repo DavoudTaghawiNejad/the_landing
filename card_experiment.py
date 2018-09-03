@@ -52,7 +52,7 @@ num_max = {Cards.TRIBE: 13,
            (Cards.TRIBE_EVENT, 2): 20,
            (Cards.TRIBE_EVENT, 3): 20}
 
-num_start = {Cards.TRIBE: 13,
+num_start = {Cards.TRIBE: 12,
              Cards.RESHUFFLE: 10,
              Cards.REMOVE_STOP: 10,
              Cards.ONLY_STOP: 10,
@@ -65,6 +65,9 @@ class Pos:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
     def __repr__(self):
         return str((self.x, self.y))
@@ -89,12 +92,12 @@ class Card:
     def ldirection(self):
         return number_to_dicection(self.direction)
 
-
     def __eq__(self, card_type):
         return self.card_type is card_type
 
-    def __str__ (self):
+    def __str__(self):
         return "<%s, %s>" % (str(self.card_type), str(self.tribe_affected))
+
 
 def number_to_dicection(number):
         if number == 0:
@@ -128,12 +131,25 @@ def card_stats(cards):
 def count(cards, card_type):
     return sum([1 for card in cards if card == card_type])
 
+
 def hist(cards):
     hist = defaultdict(int)
     for card in cards:
         hist[str(card.card_type)] += card.drawn
         hist['total number'] += card.drawn
     return hist
+
+
+def generate_map(mountains=2, lakes=2, steppe=3, x=5, y=5):
+    obstacles = {}
+    for _ in range(steppe):
+        obstacles[Pos(randrange(x), randrange(y))] = 'steppe'
+    for _ in range(mountains):
+        obstacles[Pos(randrange(x), randrange(y))] = 'mountain'
+    for _ in range(lakes):
+        obstacles[Pos(randrange(x), randrange(y))] = 'lakes'
+    return obstacles
+
 
 def one_game(directions=None, figs=False):
     cards = []
@@ -143,7 +159,7 @@ def one_game(directions=None, figs=False):
                 cards.append(Card(card_type, action))
 
 
-
+    obstacles = generate_map()
     stats = card_stats(cards)
     start_cards = copy(cards)
 
@@ -176,7 +192,7 @@ def one_game(directions=None, figs=False):
                     penelty += 1
             cards_drawn_this_set += 1
             drawn.mark_drawn()
-            m = move(pos, drawn, tribes)
+            m = move(pos, drawn, obstacles, tribes)
             if m[0] == '.':
                 penelty += 0.1
             if m[1] == '.':
@@ -251,7 +267,8 @@ def one_game(directions=None, figs=False):
             stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
 
 
-def move(pos, card, tribes):
+def move(pos, card, obstacles, tribes):
+
     ret = ['', '', '']
     if card.tribe_affected is None:
         tribes_affected = range(tribes)
@@ -260,6 +277,7 @@ def move(pos, card, tribes):
         if tribes_affected[0] > tribes:
             return ret
     for tribe in tribes_affected:
+        old_pos = pos[tribe]
         if card.direction == 0 and pos[tribe].x > 0:
             pos[tribe].x -= 1
             ret[tribe] = '←'
@@ -314,6 +332,10 @@ def move(pos, card, tribes):
             ret[tribe] = '`'
         else:
             ret[tribe] = '.'
+
+        if pos[tribe] in obstacles:
+            print(obstacles[pos[tribe]])
+            pos[tribe] = old_pos
     return ret
 
 
