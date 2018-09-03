@@ -152,10 +152,10 @@ def one_game(directions=None, figs=False):
     while True:
         i = 0
         movement.append(['|', '|', '|'])
-        if len(this_set) <= 1:
+        if i <= 1:
             penelty += 0.1
-        if len(this_set) >= 4:
-            penelty += 0.001
+        if i >= 4:
+            penelty += 0.1
         this_set = []
         while True:
             if i >= 5:
