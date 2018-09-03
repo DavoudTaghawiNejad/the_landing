@@ -225,6 +225,8 @@ def one_game(directions=None, figs=False):
         lastii.append(i)
         if 2 < i < 5:
             adjustedii += i
+        else:
+            adjustedii += 2.5
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
