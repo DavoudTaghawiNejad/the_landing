@@ -155,6 +155,7 @@ def one_game(directions=None, figs=False):
         this_set = []
         while True:
             if i >= 5:
+                penelty += 1
                 break
             drawn = cards.pop()
             if drawn.direction != 4:
