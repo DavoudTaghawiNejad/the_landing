@@ -146,7 +146,7 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
     this_set = []
-    adjusted_cards_drawn = 0
+    adjusted_cards_drawn = 1
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
