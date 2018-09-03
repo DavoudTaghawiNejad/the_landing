@@ -164,8 +164,6 @@ def one_game(directions=None, figs=False):
                 penelty += 0.1
             if drawn.direction == last_direction:
                 penelty -= 0.02
-                if drawn.direction == 4:
-                    penelty += 0.1
             if drawn.ldirection in ['↓',    '↑']:
                 penelty -= 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
