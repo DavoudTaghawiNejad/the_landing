@@ -137,7 +137,7 @@ def one_game(directions=None, figs=False):
     discard = []
     ii = []
     lastii = []
-    adjustedii = 0
+    adjustedii = 1
     subround = 0
     pos = 0
     tribes = 0
