@@ -137,7 +137,6 @@ def one_game(directions=None, figs=False):
     discard = []
     ii = []
     lastii = []
-    adjustedii = 10
     subround = 0
     pos = 0
     tribes = 0
@@ -164,7 +163,7 @@ def one_game(directions=None, figs=False):
                 penelty += 0.1
             if drawn.direction == last_direction:
                 penelty -= 0.02
-            if drawn.ldirection in ['↓',    '↑']:
+            if drawn.ldirection in ['↓', '↑']:
                 penelty -= 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
@@ -223,10 +222,6 @@ def one_game(directions=None, figs=False):
         # print(i, subround, end=' ')
         ii.append(i)
         lastii.append(i)
-        if 2 < i < 5:
-            adjustedii += i
-        else:
-            adjustedii += 2.5
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
@@ -235,7 +230,7 @@ def one_game(directions=None, figs=False):
         if subround == 3 * 4:
             break
         if len(cards) == 0:
-            print("no cards,", end='')
+            print("n", end='')
             penelty += 50
             break
 
@@ -243,7 +238,7 @@ def one_game(directions=None, figs=False):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / adjustedii, start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / len(ii), start_cards, pos)
 
 
 def move(pos, card, tribes):
