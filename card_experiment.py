@@ -35,10 +35,10 @@ class Cards(str, Enum):
 
 
 
-num = {Cards.TRIBE: 15,
-       Cards.RESHUFFLE: 5,
-       Cards.REMOVE_STOP: 5,
-       Cards.ONLY_STOP: 4,
+num = {Cards.TRIBE: 13,
+       Cards.RESHUFFLE: 0,
+       Cards.REMOVE_STOP: 2,
+       Cards.ONLY_STOP: 7,
        Cards.OTHER: 10,
        (Cards.TRIBE_EVENT, 1): 7,
        (Cards.TRIBE_EVENT, 2): 5,
@@ -308,7 +308,7 @@ def move(pos, card, tribes):
 
 
 def draw(best):
-    if input():
+    if input('turtle?'):
         return
     ttl.setworldcoordinates(0,0,50,50)
     turtles = [ttl.Turtle() for _ in range(3)]
@@ -353,7 +353,7 @@ def draw(best):
                     turtles[tribe].sety(50)
                 if turtles[tribe].xcor() > 50:
                     turtles[tribe].setx(50)
-        if input():
+        if input('turtle?'):
             ttl.bye()
             return
     ttl.bye()
@@ -389,7 +389,7 @@ class Directions:
             child_code[gen][a], child_code[gen][b] = child_code[gen][b], child_code[gen][a]
         return Directions(self.actions, genetical_code=child_code)
 
-def train(iterations=1):
+def train(iterations=0):
     bests = []
     with Pool() as pool:
         population = [Directions(9) for i in range(1500)]
@@ -405,7 +405,7 @@ def train(iterations=1):
         result = one_game(directions=best)
 
         print(result[-1], [''.join(z) for z in zip(*result[-4])])
-    py.plot([go.Scatter(y=bests)])
+    #py.plot([go.Scatter(y=bests)])
     pprint([(card.card_type, card.tribe_affected, card.direction) for card in result[-2]])
     move_tag_stats = defaultdict(lambda: defaultdict(int))
     for card in result[-2]:
@@ -525,7 +525,7 @@ def main():
 
 if __name__ == '__main__':
     #load_and_draw()
-    train(150)
+    train(500)
     main()
 
 
