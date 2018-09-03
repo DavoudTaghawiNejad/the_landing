@@ -337,7 +337,6 @@ def move(pos, card, obstacles, tribes):
             ret[tribe] = '.'
 
         if pos[tribe] in obstacles:
-            print(obstacles[pos[tribe]])
             pos[tribe] = old_pos
     return ret
 
