@@ -33,25 +33,24 @@ class Cards(str, Enum):
     def __repr__(self):
         return self.name
 
-
-num = {Cards.TRIBE: 13,
-       Cards.RESHUFFLE: 0,
-       Cards.REMOVE_STOP: 4,
-       Cards.ONLY_STOP: 3,
-       Cards.OTHER: 9,
-       (Cards.TRIBE_EVENT, 1): 7,
-       (Cards.TRIBE_EVENT, 2): 5,
-       (Cards.TRIBE_EVENT, 3): 4}
+num_min = {Cards.TRIBE: 7,
+           Cards.RESHUFFLE: 0,
+           Cards.REMOVE_STOP: 3,
+           Cards.ONLY_STOP: 3,
+           Cards.OTHER: 9,
+           (Cards.TRIBE_EVENT, 1): 7,
+           (Cards.TRIBE_EVENT, 2): 5,
+           (Cards.TRIBE_EVENT, 3): 4}
 
 
 num_max = {Cards.TRIBE: 13,
-           Cards.RESHUFFLE: 100,
-           Cards.REMOVE_STOP: 100,
-           Cards.ONLY_STOP: 100,
-           Cards.OTHER: 100,
-           (Cards.TRIBE_EVENT, 1): 100,
-           (Cards.TRIBE_EVENT, 2): 100,
-           (Cards.TRIBE_EVENT, 3): 100}
+           Cards.RESHUFFLE: 20,
+           Cards.REMOVE_STOP: 20,
+           Cards.ONLY_STOP: 20,
+           Cards.OTHER: 20,
+           (Cards.TRIBE_EVENT, 1): 20,
+           (Cards.TRIBE_EVENT, 2): 20,
+           (Cards.TRIBE_EVENT, 3): 20}
 
 
 class Pos:
@@ -373,10 +372,11 @@ class Directions:
             self.genetical_code = {}
             for card_type in Cards:
                 if card_type != Cards.TRIBE_EVENT:
-                    example = [randrange(actions) for _ in range(num[card_type])]
+                    example = [randrange(actions) for _ in range(int(num_max[card_type] - num_min[card_type]))]
                     self.genetical_code[card_type] = [example.count(i) for i in range(actions)]
             for i in range(1, 3 + 1):
-                example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
+                example = [randrange(actions)
+                           for _ in range(int(num_max[(Cards.TRIBE_EVENT, i)] - num_min[(Cards.TRIBE_EVENT, i)]))]
                 self.genetical_code[(Cards.TRIBE_EVENT, i)] = [example.count(i) for i in range(actions)]
 
     def __add__(self, other):
@@ -386,9 +386,7 @@ class Directions:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] -= 1
-            if (sum(child_code['OTHER']) < num['OTHER'] or
-                    (sum(child_code['ONLY_STOP']) + sum(child_code['REMOVE_STOP']) <
-                        num['ONLY_STOP'] + num['REMOVE_STOP'])):
+            if sum(child_code[gen]) > num_min[gen]:
                 b = randrange(self.actions)
                 child_code[gen][b] += 1
 
