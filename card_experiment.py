@@ -146,7 +146,7 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
+    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 5)]
     last_direction = -1
     while True:
         cards_drawn_this_set = 0
@@ -313,7 +313,7 @@ def draw(best):
 
         turtles[0].setposition(50, 50)
         turtles[1].setposition(50, 0)
-        turtles[2].setposition(0, 50)
+        turtles[2].setposition(50, 50)
         turtles[0].clear()
         turtles[1].clear()
         turtles[2].clear()
