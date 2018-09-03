@@ -152,13 +152,9 @@ def one_game(directions=None, figs=False):
         i = 0
         movement.append(['|', '|', '|'])
         while True:
-            if i >= 5:
-                break
             drawn = cards.pop()
             if drawn.direction == last_direction:
                 penelty -= 0.02
-                if drawn.direction == 4:
-                    penelty += 0.1
             if drawn.ldirection in ['↓', '↑']:
                 penelty -= 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
@@ -210,6 +206,8 @@ def one_game(directions=None, figs=False):
             else:
                 raise Exception(str(drawn))
             if len(cards) == 0:
+                break
+            if i >= 5:
                 break
         tribes_out.append(tribes)
         subround += 1
