@@ -164,11 +164,11 @@ def one_game(directions=None, figs=False):
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
             if m[0] == '.':
-                penelty += 0.025
+                penelty += 0.1
             if m[1] == '.':
-                penelty += 0.025
+                penelty += 0.1
             if m[2] == '.':
-                penelty += 0.025
+                penelty += 0.1
             movement.append(m)
 
             penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
