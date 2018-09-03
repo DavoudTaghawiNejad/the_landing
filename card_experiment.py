@@ -164,6 +164,8 @@ def one_game(directions=None, figs=False):
                 penelty -= 0.02
                 if drawn.direction == 4:
                     penelty += 0.1
+            if drawn.ldirection in ['↓',    '↑']:
+                penelty -= 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
                     penelty += 0.1
@@ -181,9 +183,6 @@ def one_game(directions=None, figs=False):
                     penelty += 0.025
             movement.append(m)
 
-            for t in range(3):
-                if pos[t].x == pos[t].y == 3:
-                    penelty -= 0.5
             penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
@@ -527,4 +526,7 @@ def main():
 if __name__ == '__main__':
     #load_and_draw()
     train(150)
-    #main()
+    main()
+
+
+# gcloud compute --project "thelanding-1533847703792" scp --zone "us-east1-b" instance-1:/home/davoudtaghawinejad/the_landing/card_directions.pp ~/card_directions.pp
