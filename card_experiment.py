@@ -34,7 +34,6 @@ class Cards(str, Enum):
         return self.name
 
 
-
 num = {Cards.TRIBE: 13,
        Cards.RESHUFFLE: 0,
        Cards.REMOVE_STOP: 4,
@@ -43,6 +42,16 @@ num = {Cards.TRIBE: 13,
        (Cards.TRIBE_EVENT, 1): 7,
        (Cards.TRIBE_EVENT, 2): 5,
        (Cards.TRIBE_EVENT, 3): 4}
+
+
+num_max = {Cards.TRIBE: 13,
+           Cards.RESHUFFLE: 100,
+           Cards.REMOVE_STOP: 100,
+           Cards.ONLY_STOP: 100,
+           Cards.OTHER: 100,
+           (Cards.TRIBE_EVENT, 1): 100,
+           (Cards.TRIBE_EVENT, 2): 100,
+           (Cards.TRIBE_EVENT, 3): 100}
 
 
 class Pos:
@@ -387,6 +396,10 @@ class Directions:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] += 1
+            if sum(child_code[gen]) > num_max[gen]:
+                b = randrange(self.actions)
+                child_code[gen][b] -= 1
+
         return Directions(self.actions, genetical_code=child_code)
 
 
