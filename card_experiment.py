@@ -170,7 +170,7 @@ def one_game(directions=None, figs=False):
                 penelty -= 0.02
                 if drawn.direction == 4:
                     penelty += 0.1
-            if drawn.ldirection in ['↓',    '↑']:
+            if drawn.ldirection in ['↓', '↑']:
                 penelty -= 0.1
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
@@ -222,7 +222,7 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
-        if i < 5:
+        if 1 < i < 5:
             adjusted_cards_drawn += 1
         tribes_out.append(tribes)
         subround += 1
