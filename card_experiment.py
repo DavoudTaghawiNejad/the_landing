@@ -146,7 +146,6 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
     this_set = []
-    adjusted_cards_drawn = 1
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
@@ -222,8 +221,6 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
-        if 1 < i < 5:
-            adjusted_cards_drawn += i
         tribes_out.append(tribes)
         subround += 1
         if subround == 3 * 2:
@@ -243,11 +240,14 @@ def one_game(directions=None, figs=False):
             penelty += 0.5
             break
 
+        average_cards_drawn_per_set = sum(ii) / len(ii)
+        penelty += (average_cards_drawn_per_set - 2.5) ** 2
+
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / adjusted_cards_drawn, start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
 
 
 def move(pos, card, tribes):
