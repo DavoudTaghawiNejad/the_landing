@@ -150,12 +150,12 @@ def one_game(directions=None, figs=False):
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
-        i = 0
         movement.append(['|', '|', '|'])
         if i <= 1:
             penelty += 0.1
         if i >= 4:
             penelty += 0.1
+        i = 0
         this_set = []
         while True:
             if i >= 5:
@@ -237,7 +237,7 @@ def one_game(directions=None, figs=False):
         if subround == 3 * 4:
             break
         if len(cards) == 0:
-            print("no cards,", end='')
+            print("nc ", end='')
             penelty += 50
             break
 
