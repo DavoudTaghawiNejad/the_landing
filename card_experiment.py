@@ -395,6 +395,7 @@ def draw(best):
 
 
 def run_and_payoff(directions):
+    random.seed(0)
     return directions, - sum([one_game(directions=directions)[-3] for _ in range(100)]) / 100
 
 class Directions:
