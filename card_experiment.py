@@ -137,6 +137,7 @@ def one_game(directions=None, figs=False):
     discard = []
     ii = []
     lastii = []
+    adjustedii = 0
     subround = 0
     pos = 0
     tribes = 0
@@ -152,10 +153,6 @@ def one_game(directions=None, figs=False):
     while True:
         i = 0
         movement.append(['|', '|', '|'])
-        if len(this_set) <= 1:
-            penelty += 0.1
-        if len(this_set) >= 4:
-            penelty += 0.001
         this_set = []
         while True:
             if i >= 5:
@@ -228,6 +225,8 @@ def one_game(directions=None, figs=False):
         # print(i, subround, end=' ')
         ii.append(i)
         lastii.append(i)
+        if 1 < i < 5:
+            adjustedii += i
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
@@ -244,7 +243,7 @@ def one_game(directions=None, figs=False):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / adjustedii, start_cards, pos)
 
 
 def move(pos, card, tribes):
