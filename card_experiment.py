@@ -220,6 +220,7 @@ def one_game(directions=None, figs=False):
             else:
                 raise Exception(str(drawn))
             if len(cards) == 0:
+                penelty += 50
                 break
         tribes_out.append(tribes)
         subround += 1
@@ -237,7 +238,7 @@ def one_game(directions=None, figs=False):
             break
         if len(cards) == 0:
             print("no cards,", end='')
-            penelty += 0.5
+            penelty += 50
             break
 
     repeated_cards = ([card.drawn for card in cards] +
