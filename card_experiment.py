@@ -246,7 +246,7 @@ def one_game(directions=None, figs=False):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty, start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
 
 
 def move(pos, card, tribes):
