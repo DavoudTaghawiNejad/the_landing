@@ -395,10 +395,11 @@ class Directions:
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
-            child_code[gen][a] -= 1
-            if sum(child_code[gen]) < max(num_min[gen], 0):
-                b = randrange(self.actions)
-                child_code[gen][b] += 1
+            if child_code[gen][a] > 0:
+                child_code[gen][a] -= 1
+                if sum(child_code[gen]) < num_min[gen]:
+                    b = randrange(self.actions)
+                    child_code[gen][b] += 1
             assert sum(child_code[gen]) >= 0
             assert sum(child_code[gen]) >= num_min[gen]
 
@@ -408,7 +409,10 @@ class Directions:
             child_code[gen][a] += 1
             if sum(child_code[gen]) > num_max[gen]:
                 b = randrange(self.actions)
-                child_code[gen][b] -= 1
+                if child_code[gen][b] > 0:
+                    child_code[gen][b] -= 1
+                else:
+                    child_code[gen][a] -= 1
             assert sum(child_code[gen]) <= num_max[gen]
 
 
