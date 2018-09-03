@@ -154,12 +154,12 @@ def one_game(directions=None, figs=False):
         while True:
             drawn = cards.pop()
             if drawn.direction == last_direction:
-                penelty -= 0.02
+                penelty -= 0.5
             if drawn.ldirection in ['↓', '↑']:
-                penelty -= 0.1
+                penelty -= 0.5
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
-                    penelty += 0.1
+                    penelty += 1
             cards_drawn_this_set += 1
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
