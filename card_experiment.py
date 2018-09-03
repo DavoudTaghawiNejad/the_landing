@@ -137,7 +137,7 @@ def one_game(directions=None, figs=False):
     discard = []
     ii = []
     lastii = []
-    adjustedii = 1
+    adjustedii = 10
     subround = 0
     pos = 0
     tribes = 0
@@ -225,7 +225,7 @@ def one_game(directions=None, figs=False):
         # print(i, subround, end=' ')
         ii.append(i)
         lastii.append(i)
-        if 1 < i < 5:
+        if 2 < i < 5:
             adjustedii += i
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
@@ -533,7 +533,7 @@ def main():
 
 if __name__ == '__main__':
     #load_and_draw()
-    train(150)
+    train(400)
     #main()
 
 
