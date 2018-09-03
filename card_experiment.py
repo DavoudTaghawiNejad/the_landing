@@ -53,13 +53,13 @@ num_max = {Cards.TRIBE: 13,
            (Cards.TRIBE_EVENT, 3): 20}
 
 num_start = {Cards.TRIBE: 13,
-             Cards.RESHUFFLE: 20,
-             Cards.REMOVE_STOP: 20,
-             Cards.ONLY_STOP: 20,
-             Cards.OTHER: 20,
-             (Cards.TRIBE_EVENT, 1): 20,
-             (Cards.TRIBE_EVENT, 2): 20,
-             (Cards.TRIBE_EVENT, 3): 20}
+             Cards.RESHUFFLE: 10,
+             Cards.REMOVE_STOP: 10,
+             Cards.ONLY_STOP: 10,
+             Cards.OTHER: 10,
+             (Cards.TRIBE_EVENT, 1): 10,
+             (Cards.TRIBE_EVENT, 2): 10,
+             (Cards.TRIBE_EVENT, 3): 10}
 
 class Pos:
     def __init__(self, x, y):
