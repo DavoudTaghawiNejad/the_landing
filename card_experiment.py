@@ -385,8 +385,11 @@ class Directions:
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
-            b = randrange(self.actions)
-            child_code[gen][a], child_code[gen][b] = child_code[gen][b], child_code[gen][a]
+            child_code[gen][a] -= 1
+        if random.random() < 0.02:
+            gen = choice(list(child_code.keys()))
+            a = randrange(self.actions)
+            child_code[gen][a] += 1
         return Directions(self.actions, genetical_code=child_code)
 
 def train(iterations=0):
