@@ -172,11 +172,8 @@ def one_game(directions=None, figs=False):
             movement.append(m)
             if subround <= 3 * 1:
                 penelty += 2 * sum([(2 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos])
-            elif subround <= 3 * 2:
-                penelty += 2 * sum([(2 - p.x) ** 2 + (4 - p.y) ** 2 for p in pos])
             else:
-                penelty += 2 * sum([(4 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
-
+                penelty += 2 * sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
                 discard.append(drawn)
