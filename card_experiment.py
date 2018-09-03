@@ -189,7 +189,7 @@ def one_game(directions=None, figs=False):
                     penelty += 0.025
             movement.append(m)
 
-            penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 20
+            penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 10
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
