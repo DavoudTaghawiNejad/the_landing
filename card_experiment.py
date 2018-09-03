@@ -216,6 +216,8 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
+        if i == 1:
+            penelty += 1
         tribes_out.append(tribes)
         subround += 1
         if subround == 3 * 2:
