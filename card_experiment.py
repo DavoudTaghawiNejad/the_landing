@@ -35,14 +35,14 @@ class Cards(str, Enum):
 
 
 
-num = {Cards.TRIBE: 13,
+num = {Cards.TRIBE: 4,
        Cards.RESHUFFLE: 0,
-       Cards.REMOVE_STOP: 4,
-       Cards.ONLY_STOP: 7,
-       Cards.OTHER: 10,
-       (Cards.TRIBE_EVENT, 1): 7,
-       (Cards.TRIBE_EVENT, 2): 5,
-       (Cards.TRIBE_EVENT, 3): 3}
+       Cards.REMOVE_STOP: 0,
+       Cards.ONLY_STOP: 0,
+       Cards.OTHER: 9,
+       (Cards.TRIBE_EVENT, 1): 1,
+       (Cards.TRIBE_EVENT, 2): 4,
+       (Cards.TRIBE_EVENT, 3): 2}
 
 
 class Pos:
@@ -145,12 +145,17 @@ def one_game(directions=None, figs=False):
     penelty = 0
     movement = []
     tribes_out = []
+    this_set = []
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
         i = 0
         movement.append(['|', '|', '|'])
+        if len(this_set) <= 1:
+            penelty += 0.1
+        if len(this_set) >= 4:
+            penelty += 0.001
         this_set = []
         while True:
             if i >= 5:
@@ -231,7 +236,7 @@ def one_game(directions=None, figs=False):
         if subround == 3 * 4:
             break
         if len(cards) == 0:
-            print("no more cards")
+            print("no cards,", end='')
             penelty += 0.5
             break
 
