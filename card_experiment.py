@@ -52,6 +52,14 @@ num_max = {Cards.TRIBE: 13,
            (Cards.TRIBE_EVENT, 2): 20,
            (Cards.TRIBE_EVENT, 3): 20}
 
+num_start = {Cards.TRIBE: 13,
+             Cards.RESHUFFLE: 20,
+             Cards.REMOVE_STOP: 20,
+             Cards.ONLY_STOP: 20,
+             Cards.OTHER: 20,
+             (Cards.TRIBE_EVENT, 1): 20,
+             (Cards.TRIBE_EVENT, 2): 20,
+             (Cards.TRIBE_EVENT, 3): 20}
 
 class Pos:
     def __init__(self, x, y):
@@ -372,11 +380,11 @@ class Directions:
             self.genetical_code = {}
             for card_type in Cards:
                 if card_type != Cards.TRIBE_EVENT:
-                    example = [randrange(actions) for _ in range(int(num_max[card_type] - num_min[card_type]))]
+                    example = [randrange(actions) for _ in range(int(num_start[card_type]))]
                     self.genetical_code[card_type] = [example.count(i) for i in range(actions)]
             for i in range(1, 3 + 1):
                 example = [randrange(actions)
-                           for _ in range(int(num_max[(Cards.TRIBE_EVENT, i)] - num_min[(Cards.TRIBE_EVENT, i)]))]
+                           for _ in range(int(num_start[(Cards.TRIBE_EVENT, i)]))]
                 self.genetical_code[(Cards.TRIBE_EVENT, i)] = [example.count(i) for i in range(actions)]
 
     def __add__(self, other):
