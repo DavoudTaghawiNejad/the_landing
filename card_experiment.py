@@ -72,6 +72,9 @@ class Pos:
     def __repr__(self):
         return str((self.x, self.y))
 
+    def __hash__(self):
+        return self.x + 100 * self.y
+
 
 class Card:
     def __init__(self, card_type, direction):
