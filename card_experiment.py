@@ -162,7 +162,7 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
 
-    pos = [Pos(5, 5), Pos(5, 0), Pos(5, 5)]
+    pos = [Pos(4, 4), Pos(4, 0), Pos(4, 4)]
     last_direction = -1
     while True:
         cards_drawn_this_set = 0
@@ -185,9 +185,9 @@ def one_game(directions=None, figs=False):
                 penelty += 0.1
             movement.append(m)
             if subround <= 3 * 1:
-                penelty += 2 * sum([(2 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+                penelty += 2 * sum([(1 - p.x) ** 2 + (2.5 - p.y) ** 2 for p in pos]) * 2
             else:
-                penelty += 2 * sum([(3 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
+                penelty += 2 * sum([(2.5 - p.x) ** 2 + (2.5 - p.y) ** 2 for p in pos])
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
                 discard.append(drawn)
@@ -261,13 +261,13 @@ def move(pos, card, tribes):
         if card.direction == 0 and pos[tribe].x > 0:
             pos[tribe].x -= 1
             ret[tribe] = '←'
-        elif card.direction == 2 and pos[tribe].x < 5:
+        elif card.direction == 2 and pos[tribe].x < 4:
             pos[tribe].x += 1
             ret[tribe] = '→'
         elif card.direction == 1 and pos[tribe].y > 0:
             pos[tribe].y -= 1
             ret[tribe] = '↓'
-        elif card.direction == 3 and pos[tribe].y < 5:
+        elif card.direction == 3 and pos[tribe].y < 4:
             pos[tribe].y += 1
             ret[tribe] = '↑'
 
@@ -281,10 +281,10 @@ def move(pos, card, tribes):
             else:
                 ret[tribe] = '.'
         elif card.direction == 6:
-            if pos[tribe].x < 4:
+            if pos[tribe].x < 3:
                 pos[tribe].x += 2
                 ret[tribe] = '_→→_'
-            elif pos[tribe].x < 5:
+            elif pos[tribe].x < 4:
                 pos[tribe].x += 1
                 ret[tribe] = '_→→_'
             else:
@@ -299,10 +299,10 @@ def move(pos, card, tribes):
             else:
                 ret[tribe] = '.'
         elif card.direction == 7:
-            if pos[tribe].y < 4:
+            if pos[tribe].y < 3:
                 pos[tribe].y += 2
                 ret[tribe] = '_↑↑_'
-            elif pos[tribe].y < 5:
+            elif pos[tribe].y < 4:
                 pos[tribe].y += 1
                 ret[tribe] = '_↑↑_'
             else:
@@ -318,7 +318,7 @@ def move(pos, card, tribes):
 def draw(best):
     if input('turtle?'):
         return
-    ttl.setworldcoordinates(0,0,50,50)
+    ttl.setworldcoordinates(0, 0, 60, 60)
     turtles = [ttl.Turtle() for _ in range(3)]
     turtles[0].color('red')
     turtles[1].color('blue')
@@ -327,7 +327,7 @@ def draw(best):
         instructions =  one_game(directions=best)[-4]
 
         turtles[0].setposition(50, 50)
-        turtles[1].setposition(50, 0)
+        turtles[1].setposition(50, 10)
         turtles[2].setposition(50, 50)
         turtles[0].clear()
         turtles[1].clear()
