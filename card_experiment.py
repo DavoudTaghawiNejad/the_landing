@@ -394,7 +394,7 @@ class Directions:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] -= 1
-            if sum(child_code[gen]) > num_min[gen]:
+            if sum(child_code[gen]) < max(num_min[gen], 0):
                 b = randrange(self.actions)
                 child_code[gen][b] += 1
 
