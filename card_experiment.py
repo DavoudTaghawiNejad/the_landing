@@ -37,7 +37,7 @@ class Cards(str, Enum):
 
 num = {Cards.TRIBE: 13,
        Cards.RESHUFFLE: 0,
-       Cards.REMOVE_STOP: 2,
+       Cards.REMOVE_STOP: 4,
        Cards.ONLY_STOP: 7,
        Cards.OTHER: 10,
        (Cards.TRIBE_EVENT, 1): 7,
@@ -525,8 +525,8 @@ def main():
 
 if __name__ == '__main__':
     #load_and_draw()
-    train(500)
-    main()
+    train(150)
+    #main()
 
 
 # gcloud compute --project "thelanding-1533847703792" scp --zone "us-east1-b" instance-1:/home/davoudtaghawinejad/the_landing/card_directions.pp ~/card_directions.pp
