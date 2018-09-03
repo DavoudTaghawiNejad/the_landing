@@ -163,15 +163,15 @@ def one_game(directions=None, figs=False):
             cards_drawn_this_set += 1
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
-            if m[0] == '.':
-                if pos[0].x > 0:
-                    penelty += 0.025
-            if m[1] == '.':
-                if pos[1].y < 5:
-                    penelty += 0.025
-            if m[2] == '.':
-                if pos[2].y > 0:
-                    penelty += 0.025
+            # if m[0] == '.':
+            #     if pos[0].x > 0:
+            #         penelty += 0.025
+            # if m[1] == '.':
+            #     if pos[1].y < 5:
+            #         penelty += 0.025
+            # if m[2] == '.':
+            #     if pos[2].y > 0:
+            #         penelty += 0.025
             movement.append(m)
 
             penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
