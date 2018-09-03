@@ -226,7 +226,7 @@ def one_game(directions=None, figs=False):
             penelty += 0.5
             break
 
-        penelty += (cards_drawn_this_set - 2.5) ** 2
+        penelty += (cards_drawn_this_set - 2.25) ** 2 * 2
 
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
