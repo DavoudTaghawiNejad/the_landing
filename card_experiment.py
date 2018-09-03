@@ -155,7 +155,7 @@ def one_game(directions=None, figs=False):
         if i <= 1:
             penelty += 0.1
         if i >= 4:
-            penelty *= 2
+            penelty += 0.5
         i = 0
         this_set = []
         while True:
@@ -246,7 +246,7 @@ def one_game(directions=None, figs=False):
                       [card.drawn for card in discard] +
                       [card.drawn for card in removed])
     return (tribes_out, ii, tribe_events, repeated_cards, tribes, tribes_half_time, discard_pile_length,
-            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / sum(ii), start_cards, pos)
+            stats, count(removed, Cards.REMOVE_STOP), movement, penelty / subround, start_cards, pos)
 
 
 def move(pos, card, tribes):
