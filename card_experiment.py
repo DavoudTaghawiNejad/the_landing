@@ -149,7 +149,7 @@ def one_game(directions=None, figs=False):
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
-        i = 0
+        cards_drawn_this_set = 0
         movement.append(['|', '|', '|'])
         while True:
             drawn = cards.pop()
@@ -160,7 +160,7 @@ def one_game(directions=None, figs=False):
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
                     penelty += 0.1
-            i += 1
+            cards_drawn_this_set += 1
             drawn.mark_drawn()
             m = move(pos, drawn, tribes)
             if m[0] == '.':
@@ -174,7 +174,7 @@ def one_game(directions=None, figs=False):
                     penelty += 0.025
             movement.append(m)
 
-            penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos]) / 10
+            penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
 
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -207,15 +207,15 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
-            if i >= 5:
+            if cards_drawn_this_set >= 5:
                 break
         tribes_out.append(tribes)
         subround += 1
         if subround == 3 * 2:
             tribes_half_time = tribes
-        # print(i, subround, end=' ')
-        ii.append(i)
-        lastii.append(i)
+        # print(cards_drawn_this_set, subround, end=' ')
+        ii.append(cards_drawn_this_set)
+        lastii.append(cards_drawn_this_set)
         discard_pile_length.append(len(discard))
         if figs and subround % (4 * 3) == 0:
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
@@ -228,8 +228,7 @@ def one_game(directions=None, figs=False):
             penelty += 0.5
             break
 
-        average_cards_drawn_per_set = sum(ii) / len(ii)
-        penelty += (average_cards_drawn_per_set - 2.5) ** 2
+        penelty += (cards_drawn_this_set - 2.5) ** 2
 
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +
