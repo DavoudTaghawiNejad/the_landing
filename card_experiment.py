@@ -232,6 +232,7 @@ def one_game(directions=None, figs=False):
             break
         if len(cards) == 0:
             print("no more cards")
+            penelty += 0.5
             break
 
     repeated_cards = ([card.drawn for card in cards] +
