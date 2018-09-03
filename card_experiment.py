@@ -155,8 +155,6 @@ def one_game(directions=None, figs=False):
             drawn = cards.pop()
             if drawn.direction == last_direction:
                 penelty -= 0.5
-            if drawn.ldirection in ['↓', '↑']:
-                penelty -= 0.5
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
                 if drawn.direction != last_direction:
                     penelty += 1
