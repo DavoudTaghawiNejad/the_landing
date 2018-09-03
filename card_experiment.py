@@ -35,14 +35,14 @@ class Cards(str, Enum):
 
 
 
-num = {Cards.TRIBE: 4,
+num = {Cards.TRIBE: 13,
        Cards.RESHUFFLE: 0,
-       Cards.REMOVE_STOP: 0,
-       Cards.ONLY_STOP: 0,
-       Cards.OTHER: 9,
-       (Cards.TRIBE_EVENT, 1): 1,
-       (Cards.TRIBE_EVENT, 2): 4,
-       (Cards.TRIBE_EVENT, 3): 2}
+       Cards.REMOVE_STOP: 4,
+       Cards.ONLY_STOP: 7,
+       Cards.OTHER: 10,
+       (Cards.TRIBE_EVENT, 1): 7,
+       (Cards.TRIBE_EVENT, 2): 5,
+       (Cards.TRIBE_EVENT, 3): 4}
 
 
 class Pos:
