@@ -384,7 +384,6 @@ class Directions:
                 example = [randrange(actions) for _ in range(num[(Cards.TRIBE_EVENT, i)])]
                 self.genetical_code[(Cards.TRIBE_EVENT, i)] = [example.count(i) for i in range(actions)]
 
-
     def __add__(self, other):
         child_code = {a[0]: choice([a[1], b[1]])
                       for a, b in zip(self.genetical_code.items(), other.genetical_code.items())}
@@ -392,11 +391,18 @@ class Directions:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] -= 1
+            if (sum(child_code['OTHER']) < num['OTHER'] or
+                    (sum(child_code['ONLY_STOP']) + sum(child_code['REMOVE_STOP']) <
+                        num['ONLY_STOP'] + num['REMOVE_STOP']):
+                b = randrange(self.actions)
+                child_code[gen][b] += 1
+
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] += 1
         return Directions(self.actions, genetical_code=child_code)
+
 
 def train(iterations=0):
     bests = []
