@@ -149,6 +149,7 @@ def one_game(directions=None, figs=False):
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
+    i = 0
     while True:
         movement.append(['|', '|', '|'])
         if i <= 1:
