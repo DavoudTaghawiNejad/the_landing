@@ -39,7 +39,7 @@ num = {Cards.TRIBE: 13,
        Cards.RESHUFFLE: 0,
        Cards.REMOVE_STOP: 4,
        Cards.ONLY_STOP: 3,
-       Cards.OTHER: 10,
+       Cards.OTHER: 9,
        (Cards.TRIBE_EVENT, 1): 7,
        (Cards.TRIBE_EVENT, 2): 5,
        (Cards.TRIBE_EVENT, 3): 4}
