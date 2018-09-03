@@ -38,7 +38,7 @@ class Cards(str, Enum):
 num = {Cards.TRIBE: 13,
        Cards.RESHUFFLE: 0,
        Cards.REMOVE_STOP: 4,
-       Cards.ONLY_STOP: 7,
+       Cards.ONLY_STOP: 3,
        Cards.OTHER: 10,
        (Cards.TRIBE_EVENT, 1): 7,
        (Cards.TRIBE_EVENT, 2): 5,
