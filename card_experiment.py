@@ -145,26 +145,16 @@ def one_game(directions=None, figs=False):
     penelty = 0
     movement = []
     tribes_out = []
-    this_set = []
 
     pos = [Pos(5, 5), Pos(5, 0), Pos(0, 5)]
     last_direction = -1
     while True:
         i = 0
         movement.append(['|', '|', '|'])
-        if len(this_set) <= 1:
-            penelty += 0.1
-        if len(this_set) >= 4:
-            penelty += 0.001
-        this_set = []
         while True:
             if i >= 5:
                 break
             drawn = cards.pop()
-            if drawn.direction != 4:
-                this_set.append(4)
-            if len(this_set) > 2:
-                penelty += 0.1
             if drawn.direction == last_direction:
                 penelty -= 0.02
                 if drawn.direction == 4:
