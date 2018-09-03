@@ -408,6 +408,10 @@ class Directions:
                 b = randrange(self.actions)
                 child_code[gen][b] -= 1
 
+        assert sum(child_code[gen]) <= num_max[gen]
+        assert sum(child_code[gen]) >= 0
+        assert sum(child_code[gen]) >= num_min[gen]
+
         return Directions(self.actions, genetical_code=child_code)
 
 
