@@ -393,6 +393,8 @@ class Directions:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
             child_code[gen][a] -= 1
+            if child_code[gen][a] < 0:
+                child_code[gen][a] = 0
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
             a = randrange(self.actions)
