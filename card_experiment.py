@@ -44,7 +44,7 @@ num_min = {Cards.TRIBE: 7,
 
 
 num_max = {Cards.TRIBE: 13,
-           Cards.RESHUFFLE: 20,
+           Cards.RESHUFFLE: 1,
            Cards.REMOVE_STOP: 20,
            Cards.ONLY_STOP: 20,
            Cards.OTHER: 20,
@@ -53,7 +53,7 @@ num_max = {Cards.TRIBE: 13,
            (Cards.TRIBE_EVENT, 3): 20}
 
 num_start = {Cards.TRIBE: 12,
-             Cards.RESHUFFLE: 10,
+             Cards.RESHUFFLE: 0,
              Cards.REMOVE_STOP: 10,
              Cards.ONLY_STOP: 10,
              Cards.OTHER: 10,
@@ -581,7 +581,7 @@ def main():
 if __name__ == '__main__':
     #load_and_draw()
     train(150)
-    #main()
+    main()
 
 
 # gcloud compute --project "thelanding-1533847703792" scp --zone "us-east1-b" instance-1:/home/davoudtaghawinejad/the_landing/card_directions.pp ~/card_directions.pp
