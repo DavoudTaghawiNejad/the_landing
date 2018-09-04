@@ -208,6 +208,10 @@ def one_game(directions=None, figs=False):
             else:
                 penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
 
+            if (pos[0] == pos[1] or
+                    pos[0] == pos[2] or
+                    pos[1] == pos[2])
+                penelty += 0.75
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
                 discard.append(drawn)
@@ -439,7 +443,6 @@ class Directions:
                 else:
                     child_code[gen][a] -= 1
             assert sum(child_code[gen]) <= num_max[gen]
-
 
         return Directions(self.actions, genetical_code=child_code)
 
