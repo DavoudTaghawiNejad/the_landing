@@ -210,7 +210,7 @@ def one_game(directions=None, figs=False):
 
             if (pos[0] == pos[1] or
                     pos[0] == pos[2] or
-                    pos[1] == pos[2])
+                    pos[1] == pos[2]):
                 penelty += 0.75
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
