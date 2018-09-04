@@ -48,18 +48,18 @@ num_max = {Cards.TRIBE: 13,
            Cards.REMOVE_STOP: 20,
            Cards.ONLY_STOP: 20,
            Cards.OTHER: 20,
-           (Cards.TRIBE_EVENT, 1): 20,
-           (Cards.TRIBE_EVENT, 2): 20,
-           (Cards.TRIBE_EVENT, 3): 20}
+           (Cards.TRIBE_EVENT, 1): 10,
+           (Cards.TRIBE_EVENT, 2): 11,
+           (Cards.TRIBE_EVENT, 3): 12}
 
 num_start = {Cards.TRIBE: 12,
              Cards.RESHUFFLE: 0,
-             Cards.REMOVE_STOP: 10,
-             Cards.ONLY_STOP: 10,
-             Cards.OTHER: 10,
-             (Cards.TRIBE_EVENT, 1): 10,
-             (Cards.TRIBE_EVENT, 2): 10,
-             (Cards.TRIBE_EVENT, 3): 10}
+             Cards.REMOVE_STOP: 9,
+             Cards.ONLY_STOP: 8,
+             Cards.OTHER: 11,
+             (Cards.TRIBE_EVENT, 1): 8,
+             (Cards.TRIBE_EVENT, 2): 11,
+             (Cards.TRIBE_EVENT, 3): 12}
 
 class Pos:
     def __init__(self, x, y):
@@ -209,6 +209,7 @@ def one_game(directions=None, figs=False):
                 penelty += 2 * sum([(1 - p.x) ** 2 + (2.5 - p.y) ** 2 for p in pos]) * 1.5
             else:
                 penelty += 2 * sum([(2.5 - p.x) ** 2 + (2.5 - p.y) ** 2 for p in pos])
+
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
                 discard.append(drawn)
@@ -350,7 +351,7 @@ def draw(best):
     turtles[1].color('blue')
     turtles[2].color('green')
     for _ in range(10):
-        instructions =  one_game(directions=best)[-4]
+        instructions = one_game(directions=best)[-4]
 
         turtles[0].setposition(50, 50)
         turtles[1].setposition(50, 10)
@@ -379,10 +380,10 @@ def draw(best):
                     turtles[tribe].sety(turtles[tribe].ycor() + 20)
                 else:
                     assert t_inst in ['|', '`', '.', ''], t_inst
-                if turtles[tribe].ycor() < 0:
-                    turtles[tribe].sety(0)
-                if turtles[tribe].xcor() < 0:
-                    turtles[tribe].setx(0)
+                if turtles[tribe].ycor() < 10:
+                    turtles[tribe].sety(10)
+                if turtles[tribe].xcor() < 10:
+                    turtles[tribe].setx(10)
                 if turtles[tribe].ycor() > 50:
                     turtles[tribe].sety(50)
                 if turtles[tribe].xcor() > 50:
