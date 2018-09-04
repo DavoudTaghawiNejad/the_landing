@@ -397,7 +397,8 @@ def draw(best):
 
 def run_and_payoff(directions):
     random.seed(0)
-    return directions, - sum([one_game(directions=directions)[-3] for _ in range(100)]) / 100
+    return directions, - sum([one_game(directions=directions)[-3] for _ in range(200)]) / 200
+
 
 class Directions:
     def __init__(self, actions, genetical_code=None):
