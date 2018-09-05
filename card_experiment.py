@@ -40,7 +40,7 @@ num_min = {Cards.TRIBE: 7,
            Cards.OTHER: 9,
            (Cards.TRIBE_EVENT, 1): 7,
            (Cards.TRIBE_EVENT, 2): 5,
-           (Cards.TRIBE_EVENT, 3): 4}
+           (Cards.TRIBE_EVENT, 3): 0}
 
 
 num_max = {Cards.TRIBE: 13,
@@ -50,7 +50,7 @@ num_max = {Cards.TRIBE: 13,
            Cards.OTHER: 20,
            (Cards.TRIBE_EVENT, 1): 10,
            (Cards.TRIBE_EVENT, 2): 11,
-           (Cards.TRIBE_EVENT, 3): 12}
+           (Cards.TRIBE_EVENT, 3): 0}
 
 num_start = {Cards.TRIBE: 12,
              Cards.RESHUFFLE: 0,
@@ -59,7 +59,7 @@ num_start = {Cards.TRIBE: 12,
              Cards.OTHER: 11,
              (Cards.TRIBE_EVENT, 1): 8,
              (Cards.TRIBE_EVENT, 2): 11,
-             (Cards.TRIBE_EVENT, 3): 12}
+             (Cards.TRIBE_EVENT, 3): 0}
 
 class Pos:
     def __init__(self, x, y):
@@ -181,7 +181,7 @@ def one_game(directions=None, figs=False):
     movement = []
     tribes_out = []
 
-    pos = [Pos(4, 4), Pos(4, 0), Pos(4, 4)]
+    pos = [Pos(4, 4), Pos(4, 0)]
     last_direction = -1
     while True:
         cards_drawn_this_set = 0
@@ -202,15 +202,14 @@ def one_game(directions=None, figs=False):
                 penelty += 0.1
             movement.append(m)
             if subround <= 3 * 0.5:
-                penelty += 2 * sum([(0 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+                penelty += 4 * sum([(0 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
             elif subround <= 3 * 1.5:
-                penelty += 2 * sum([(1 - p.x) ** 2 + (2.5 - p.y) ** 2 for p in pos]) * 1.5
+                penelty += 3 * ((1 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
+                                (1 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
             else:
-                penelty += 2 * sum([(2 - p.x) ** 2 + (3 - p.y) ** 2 for p in pos])
-
-            if (pos[0] == pos[1] or
-                    pos[0] == pos[2] or
-                    pos[1] == pos[2]):
+                penelty += 2 * ((2 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
+                                (2 - pos[1].x) ** 2 + (4 - pos[1].y) ** 2)
+            if pos[0] == pos[1]:
                 penelty += 0.75
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
@@ -228,7 +227,7 @@ def one_game(directions=None, figs=False):
                 break
             elif drawn == Cards.TRIBE:
                 removed.append(drawn)
-                if tribes < 3:
+                if tribes < 1:
                     tribes += 1
                 shuffle(discard)
                 cards.extend(discard)
