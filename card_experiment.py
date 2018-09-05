@@ -44,7 +44,7 @@ num_min = {Cards.TRIBE: 7,
 
 
 num_max = {Cards.TRIBE: 13,
-           Cards.RESHUFFLE: 1,
+           Cards.RESHUFFLE: 0,
            Cards.REMOVE_STOP: 20,
            Cards.ONLY_STOP: 20,
            Cards.OTHER: 20,
@@ -250,6 +250,8 @@ def one_game(directions=None, figs=False):
         subround += 1
         if subround == 3 * 2:
             tribes_half_time = tribes
+            if tribes < 1:
+                penelty += 100
         # print(cards_drawn_this_set, subround, end=' ')
         ii.append(cards_drawn_this_set)
         lastii.append(cards_drawn_this_set)
