@@ -209,6 +209,8 @@ def one_game(directions=None, figs=False):
             else:
                 penelty += 5 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
                                 (3 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
+            if subround > 4 * 2 and (pos[0].x == 0 or pos[1].x == 0):
+                penelty += 0.75
             if pos[0] == pos[1]:
                 penelty += 0.75
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
@@ -256,7 +258,7 @@ def one_game(directions=None, figs=False):
                 figs.append_trace(go.Histogram(x=lastii, xbins=xbins(lastii)), pos // 5 + 1, pos % 5 + 1)
                 pos += 1
                 lastii = []
-        if subround == 3 * 4:
+        if subround == 4 * 4:
             break
         if len(cards) == 0:
             print("no cards,", end='')
