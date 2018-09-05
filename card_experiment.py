@@ -185,7 +185,7 @@ def one_game(directions=None, figs=False):
     last_direction = -1
     while True:
         cards_drawn_this_set = 0
-        movement.append(['|', '|', '|'])
+        movement.append(['|', '|'])
         while True:
             drawn = cards.pop()
             if drawn.direction % 2 == last_direction % 2 and drawn.direction != 4:
@@ -242,7 +242,7 @@ def one_game(directions=None, figs=False):
                 raise Exception(str(drawn))
             if len(cards) == 0:
                 break
-            if cards_drawn_this_set >= 5:
+            if cards_drawn_this_set >= 3:
                 break
         tribes_out.append(tribes)
         subround += 1
@@ -260,10 +260,10 @@ def one_game(directions=None, figs=False):
             break
         if len(cards) == 0:
             print("no cards,", end='')
-            penelty += 0.5
+            penelty += 50
             break
 
-        penelty += (cards_drawn_this_set - 2.25) ** 2 * 2
+        penelty += (cards_drawn_this_set - 1.5) ** 2 * 2
 
     repeated_cards = ([card.drawn for card in cards] +
                       [card.drawn for card in discard] +

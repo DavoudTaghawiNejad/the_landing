@@ -47,15 +47,15 @@ def main():
 
     i = 0
     p = (0, 0)
-    result = read('EventCards!A2:F42', service)
-    for line in result:
-
-        if not line:
+    while True:
+        print(i)
+        result = read('EventCards!A{0}:F{0}'.format(i + 2), service)
+        if not result:
             break
-        elif not line[0]:
+        elif not result[0][0]:
             break
-        p = writepdf(line, p, c)
-
+        p = writepdf(result[0], p, c)
+        i += 1
 
     c.save()
 
@@ -68,20 +68,17 @@ def read(range_name, service):
 
 
 def prep(text):
-    return (text.replace('--', '<br/>-')
-            .replace('::', '<br/>')
-            .replace('-*-', '</para><para alignment="center">'))
-
+    return text.replace('-', '<br/>-')
 
 def write_directions(data, frmt, p, canvas):
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     styleB = ParagraphStyle(name='Bold',
-                            parent=styles['Normal'],
-                            fontName='Times-Bold',
-                            spaceBefore=0,
-                            spaceAfter=0,
-                            leftIndent=10)
+                                  parent=styles['Normal'],
+                                  fontName = 'Times-Bold',
+                                  spaceBefore=0,
+                                  spaceAfter=0,
+                                  leftIndent=10)
     styleN.spaceBefore = 15
     styleN.spaceAfter = 10
 
@@ -113,7 +110,6 @@ def write_directions(data, frmt, p, canvas):
     f.addFromList([KeepInFrame(40, 40, story)], canvas)
     canvas.restoreState()
 
-
 def writepdf(text, p, canvas):
     try:
         frmts = eval(text[4])
@@ -126,36 +122,20 @@ def writepdf(text, p, canvas):
         for frmt in frmts:
             styles = getSampleStyleSheet()
             styleN = styles['Normal']
-            if text[5] == 'TRIBE':
-                styleN.spaceBefore = 0
-                styleN.spaceAfter = 0
-            else:
-                styleN.spaceBefore = 10
-                styleN.spaceAfter = 10
+            styleN.spaceBefore = 10
+            styleN.spaceAfter = 10
             styleH = styles['Heading1']
 
             title = Paragraph(text[0].format(*frmt), styleH)
             story = []
             story.append(Paragraph(prep(text[1]).format(*frmt), styleN))
             if text[2]:
-                story.append(Paragraph('____________________________<br/>', styleN))
-                story.append(Paragraph(prep(text[2]).format(*frmt), styleN))
-
-            if text[5] == 'TRIBE':
-                canvas.drawImage('tribe.jpg', spacer + p[0] * width, spacer + p[1] * height + 60 * mm, width * 0.8, height * 0.25)
-                canvas.drawImage('x.jpg', spacer + p[0] * width + 7.15 * frmt[0] * mm - 6 * mm, spacer + p[1] * height + 71.97 * mm, width * 0.08, height * 0.065)
-                canvas.drawImage('x.jpg', spacer + p[0] * width + 7.15 * frmt[1] * mm - 6 * mm, spacer + p[1] * height + 61.5 * mm, width * 0.08, height * 0.065)
-                f = Frame(spacer + p[0] * width + width - 20 * mm, spacer + p[1] * height - 20 * mm, width, height, showBoundary=0)
-                f.addFromList([Paragraph(str(frmt[2]), style=styleH)], canvas)
-
-                f = Frame(spacer + p[0] * width, spacer + p[1] * height - 35 * mm, width, height, showBoundary=0)
-                f.addFromList([KeepInFrame(height, width, story)], canvas)
-                story = []
+                story.append(Paragraph('<br/>____________________________<br/>', styleN))
+                story.append(Paragraph('<br/>' + prep(text[2]).format(*frmt), styleN))
+            canvas.saveState()
             f = Frame(spacer + p[0] * width, spacer + p[1] * height, width, height, showBoundary=1)
             f.addFromList([title, KeepInFrame(height, width, story)], canvas)
-
-
-
+            canvas.restoreState()
 
             write_directions(text, frmt, p, canvas)
             if p == (2, 2):
