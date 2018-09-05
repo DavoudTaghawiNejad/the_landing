@@ -195,20 +195,20 @@ def one_game(directions=None, figs=False):
             drawn.mark_drawn()
             m = move(pos, drawn, obstacles, tribes)
             if m[0] == '.':
-                penelty += 0.1
+                penelty += 1
             if m[1] == '.':
-                penelty += 0.1
-            if m[2] == '.':
-                penelty += 0.1
+                penelty += 1
             movement.append(m)
-            if subround <= 3 * 0.5:
-                penelty += 4 * sum([(0 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
-            elif subround <= 3 * 1.5:
-                penelty += 3 * ((1 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
-                                (1 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
+            if subround <= 4 * 0.5:
+                penelty += 4 * sum([(4 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+            elif subround <= 4 * 2:
+                penelty += 4 * sum([(1 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+            elif subround <= 4 * 3:
+                penelty += 3 * ((2 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
+                                (2 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
             else:
-                penelty += 2 * ((2 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
-                                (2 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
+                penelty += 2 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
+                                (3 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
             if pos[0] == pos[1]:
                 penelty += 0.75
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
