@@ -207,7 +207,7 @@ def one_game(directions=None, figs=False):
                 penelty += 3 * ((2 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
                                 (2 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
             else:
-                penelty += 2 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
+                penelty += 5 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
                                 (3 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
             if pos[0] == pos[1]:
                 penelty += 0.75
