@@ -34,7 +34,7 @@ class Cards(str, Enum):
         return self.name
 
 num_min = {Cards.TRIBE: 7,
-           Cards.RESHUFFLE: 0,
+           Cards.RESHUFFLE: 6,
            Cards.REMOVE_STOP: 3,
            Cards.ONLY_STOP: 3,
            Cards.OTHER: 9,
@@ -42,24 +42,25 @@ num_min = {Cards.TRIBE: 7,
            (Cards.TRIBE_EVENT, 2): 5,
            (Cards.TRIBE_EVENT, 3): 0}
 
-
-num_max = {Cards.TRIBE: 13,
-           Cards.RESHUFFLE: 0,
-           Cards.REMOVE_STOP: 20,
-           Cards.ONLY_STOP: 20,
-           Cards.OTHER: 20,
-           (Cards.TRIBE_EVENT, 1): 10,
-           (Cards.TRIBE_EVENT, 2): 11,
-           (Cards.TRIBE_EVENT, 3): 0}
-
-num_start = {Cards.TRIBE: 12,
-             Cards.RESHUFFLE: 0,
+num_start = {Cards.TRIBE: 7,
+             Cards.RESHUFFLE: 8,
              Cards.REMOVE_STOP: 9,
              Cards.ONLY_STOP: 8,
              Cards.OTHER: 11,
              (Cards.TRIBE_EVENT, 1): 8,
-             (Cards.TRIBE_EVENT, 2): 11,
+             (Cards.TRIBE_EVENT, 2): 8,
              (Cards.TRIBE_EVENT, 3): 0}
+
+
+num_max = {Cards.TRIBE: 13,
+           Cards.RESHUFFLE: 8,
+           Cards.REMOVE_STOP: 11,
+           Cards.ONLY_STOP: 11,
+           Cards.OTHER: 11,
+           (Cards.TRIBE_EVENT, 1): 8,
+           (Cards.TRIBE_EVENT, 2): 8,
+           (Cards.TRIBE_EVENT, 3): 0}
+
 
 class Pos:
     def __init__(self, x, y):
@@ -432,8 +433,8 @@ class Directions:
                 if sum(child_code[gen]) < num_min[gen]:
                     b = randrange(self.actions)
                     child_code[gen][b] += 1
-            assert sum(child_code[gen]) >= 0
-            assert sum(child_code[gen]) >= num_min[gen]
+            assert sum(child_code[gen]) >= 0, gen
+            assert sum(child_code[gen]) >= num_min[gen], gen
 
         if random.random() < 0.02:
             gen = choice(list(child_code.keys()))
