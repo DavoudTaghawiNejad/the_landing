@@ -232,9 +232,9 @@ def one_game(directions=None, figs=False):
                 removed.append(drawn)
                 if tribes < 2:
                     tribes += 1
-                shuffle(discard)
-                cards.extend(discard)
-                discard.clear()
+                #shuffle(discard)
+                #cards.extend(discard)
+                #discard.clear()
                 break
             elif drawn == Cards.ONLY_STOP:
                 discard.append(drawn)
