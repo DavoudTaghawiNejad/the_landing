@@ -33,8 +33,8 @@ class Cards(str, Enum):
     def __repr__(self):
         return self.name
 
-num_min = {Cards.TRIBE: 7,
-           Cards.RESHUFFLE: 6,
+num_min = {Cards.TRIBE: 1,
+           Cards.RESHUFFLE: 8,
            Cards.REMOVE_STOP: 3,
            Cards.ONLY_STOP: 3,
            Cards.OTHER: 9,
@@ -53,7 +53,7 @@ num_start = {Cards.TRIBE: 7,
 
 
 num_max = {Cards.TRIBE: 13,
-           Cards.RESHUFFLE: 8,
+           Cards.RESHUFFLE: 10,
            Cards.REMOVE_STOP: 11,
            Cards.ONLY_STOP: 11,
            Cards.OTHER: 11,
@@ -162,7 +162,6 @@ def one_game(directions=None, figs=False):
             for _ in range(repetitions):
                 cards.append(Card(card_type, action))
 
-
     obstacles = generate_map()
     stats = card_stats(cards)
     start_cards = copy(cards)
@@ -207,6 +206,8 @@ def one_game(directions=None, figs=False):
             elif drawn == Cards.TRIBE_EVENT and drawn.tribe_affected > tribes:
                 discard.append(drawn)
             elif drawn == Cards.RESHUFFLE:
+                if tribes < 2:
+                    tribes += 1
                 removed.append(drawn)
                 shuffle(discard)
                 cards.extend(discard)
@@ -219,9 +220,6 @@ def one_game(directions=None, figs=False):
                 removed.append(drawn)
                 if tribes < 2:
                     tribes += 1
-                #shuffle(discard)
-                #cards.extend(discard)
-                #discard.clear()
                 break
             elif drawn == Cards.ONLY_STOP:
                 discard.append(drawn)
@@ -570,7 +568,6 @@ def main():
                             array=[np.std(ii) for ii in list(zip(*iis))]),
                             visible=True),
                      2, 1)
-
 
     summary_fig2.append_trace(go.Bar(x=list(hist_start_cards.values()), y=list(hist_start_cards.keys()), orientation='h'), 1, 1)
     summary_fig2.append_trace(go.Bar(x=list(hist_card_stats.values()), y=list(hist_card_stats.keys()), orientation='h'), 1, 2)
