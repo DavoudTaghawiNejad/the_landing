@@ -200,20 +200,7 @@ def one_game(directions=None, figs=False):
             if m[1] == '.':
                 penelty += 1
             movement.append(m)
-            if subround <= 4 * 0.5:
-                penelty += 4 * sum([(4 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
-            elif subround <= 4 * 2:
-                penelty += 4 * sum([(1 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
-            elif subround <= 4 * 3:
-                penelty += 3 * ((2 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
-                                (2 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
-            else:
-                penelty += 5 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
-                                (3 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
-            if subround > 4 * 2 and (pos[0].x == 0 or pos[1].x == 0):
-                penelty += 0.75
-            if pos[0] == pos[1]:
-                penelty += 0.75
+
             if drawn == Cards.TRIBE_EVENT and drawn.tribe_affected <= tribes:
                 tribe_events.append(subround)
                 discard.append(drawn)
@@ -247,6 +234,22 @@ def one_game(directions=None, figs=False):
                 break
             if cards_drawn_this_set >= 3:
                 break
+
+        if subround <= 4 * 0.5:
+            penelty += 4 * sum([(4 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+        elif subround <= 4 * 2:
+            penelty += 4 * sum([(1 - p.x) ** 2 + (2 - p.y) ** 2 for p in pos]) * 2
+        elif subround <= 4 * 3:
+            penelty += 3 * ((2 - pos[0].x) ** 2 + (2 - pos[0].y) ** 2 +
+                            (2 - pos[1].x) ** 2 + (3 - pos[1].y) ** 2)
+        else:
+            penelty += 5 * ((3 - pos[0].x) ** 2 + (1.5 - pos[0].y) ** 2 +
+                            (3 - pos[1].x) ** 2 + (3.5 - pos[1].y) ** 2)
+        if subround > 4 * 2 and (pos[0].x == 0 or pos[1].x == 0):
+            penelty += 0.75
+        if pos[0] == pos[1]:
+            penelty += 1.25
+
         tribes_out.append(tribes)
         subround += 1
         if subround == 3 * 2:
