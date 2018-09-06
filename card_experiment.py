@@ -229,7 +229,7 @@ def one_game(directions=None, figs=False):
                 break
             elif drawn == Cards.TRIBE:
                 removed.append(drawn)
-                if tribes < 1:
+                if tribes < 2:
                     tribes += 1
                 shuffle(discard)
                 cards.extend(discard)
@@ -568,8 +568,8 @@ def main():
                      2, 1)
 
 
-    summary_fig2.append_trace(go.Bar(x=list(hist_start_cards.values()), y=list(hist_start_cards.keys()), orientation = 'h'), 1, 1)
-    summary_fig2.append_trace(go.Bar(x=list(hist_card_stats.values()), y=list(hist_card_stats.keys()), orientation = 'h'), 1, 2)
+    summary_fig2.append_trace(go.Bar(x=list(hist_start_cards.values()), y=list(hist_start_cards.keys()), orientation='h'), 1, 1)
+    summary_fig2.append_trace(go.Bar(x=list(hist_card_stats.values()), y=list(hist_card_stats.keys()), orientation='h'), 1, 2)
     summary_fig2.append_trace(go.Bar(y=[np.median(to) for to in zip(*tribes_out_list)]), 1, 3)
     summary_fig2.append_trace(go.Bar(y=[to.count(0) / repetitions for to in zip(*tribes_out_list)]), 2, 1)
     summary_fig2.append_trace(go.Bar(y=[to.count(3) / repetitions for to in zip(*tribes_out_list)]), 2, 2)
